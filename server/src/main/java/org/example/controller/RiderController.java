@@ -35,11 +35,11 @@ public class RiderController {
      * @date 2022/8/7 21:13
      * @description TODO
      **/
-    @ApiOperation(value = "骑手注册")
-    @PostMapping("/riderRegister")
-    public R riderRegister(@RequestBody Rider rider){
-        return iRiderService.riderRegister(rider);
-    }
+    //@ApiOperation(value = "骑手注册")
+    //@PostMapping("/riderRegister")
+    //public R riderRegister(@RequestBody Rider rider){
+    //    return iRiderService.riderRegister(rider);
+    //}
 
 
     /**

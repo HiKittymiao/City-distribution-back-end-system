@@ -51,6 +51,14 @@ public class Orders implements Serializable {
     @TableField("reder_id")
     private Integer rederId;
 
+    //@ApiModelProperty(value = "发送者电话号码")
+    //@TableField("s_phone")
+    //private Integer sPhone;
+
+    @ApiModelProperty(value = "发送者用户名")
+    @TableField("s_name")
+    private String sName;
+
     @ApiModelProperty(value = "订单内容")
     @TableField("order_content")
     private String orderContent;
@@ -63,6 +71,14 @@ public class Orders implements Serializable {
     @TableField("s_latitude")
     private Double sLatitude;
 
+    @ApiModelProperty(value = "接受用户的名字")
+    @TableField("r_name")
+    private String rName;
+
+    @ApiModelProperty(value = "接收者电话号码")
+    @TableField("r_phone")
+    private String r_Phone;
+
     @ApiModelProperty(value = "终点经纬")
     @TableField("r_longitude")
     private Double rLongitude;
@@ -74,7 +90,7 @@ public class Orders implements Serializable {
     @ApiModelProperty(value = "金额")
     private Double price;
 
-    @ApiModelProperty(value = "配送距离")
+    @ApiModelProperty(value = "配送距离单位Km")
     private Double distance;
 
     @ApiModelProperty(value = "订单状态;0：开启订单顾客未支付，1：顾客已支付骑手未取货，2骑手已取货正在配送，3货物成功送达目的地，4订单完成,5订单被取消")

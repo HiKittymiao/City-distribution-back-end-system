@@ -48,8 +48,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Orders order = new Orders();
         String id = newId();
         order.setId(Long.valueOf(id));
+        order.setSName(o.getSName());
+        order.setRName(o.getRName());
+        order.setR_Phone(o.getRPhone());
         order.setCustomerId(o.getCustomerId());
-        //order.setAddressId(o.getAddressId());
+        order.setAddressId(5);
         order.setOrderContent(o.getOrderContent());
         order.setSLongitude(o.getSLongitude());
         order.setSLatitude(o.getSLatitude());

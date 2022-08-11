@@ -24,6 +24,22 @@ public class OrderDetial {
     @TableField("customer_id")
     private Integer customerId;
 
+    @ApiModelProperty(value = "接受用户的名字")
+    @TableField("r_name")
+    private String rName;
+
+    @ApiModelProperty(value = "接收者电话号码")
+    @TableField("r_phone")
+    private String rPhone;
+
+    //@ApiModelProperty(value = "发送者电话号码")
+    //@TableField("s_phone")
+    //private Integer sPhone;
+
+    @ApiModelProperty(value = "发送者用户名")
+    @TableField("s_name")
+    private String sName;
+
     @ApiModelProperty(value = "顾客手机号码",required = true)
     private String phone;
 

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.common.R;
 import org.example.dto.OrderDetial;
 import org.example.pojo.Orders;
+import org.example.service.ICustomAddressService;
 import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
@@ -35,6 +36,8 @@ public class test {
     private ICustomService iCustomService;
     @Autowired
     private IOrdersService iOrdersService;
+    @Autowired
+    private ICustomAddressService iCustomAddressService;
     @Autowired
     private IRiderService iRiderService;
 
@@ -77,5 +80,9 @@ public class test {
     public void fdsag(){
                 R killOrder = iOrdersService.killOrder(1,1220810787300001l);
         System.out.println(killOrder);
+    }
+    @Test
+    public void fdsagd(){
+        iCustomAddressService.CustomdellAddresss(3);
     }
 }

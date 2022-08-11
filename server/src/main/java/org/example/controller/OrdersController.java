@@ -11,6 +11,8 @@ import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 /**
  * <p>
  * 订单表 前端控制器
@@ -50,7 +52,11 @@ public class OrdersController {
         PriceAndDistance pd = iOrdersService.calculateDistanceAndPrice(orderDetial);
         //生成订单返回订单号
         String s = iOrdersService.newOrder(orderDetial, pd);
-        return R.success("下单成功请付款",s);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("distance",pd.getDistance().toString());
+        map.put("price",pd.getPrice().toString());
+        map.put("order",s);
+        return R.success("下单成功请付款",map);
     }
 
 

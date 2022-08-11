@@ -1,17 +1,12 @@
 package org.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.swagger.models.auth.In;
-import org.apache.logging.log4j.util.Strings;
 import org.example.common.R;
 import org.example.mapper.AddressMapper;
 import org.example.pojo.Address;
 import org.example.service.ICustomAddressService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @ClassName: CustomAddressServiceImpl
