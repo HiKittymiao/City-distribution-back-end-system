@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.OrdersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.example.pojo.Orders">
+        <id column="id" property="id" />
+        <result column="customer_id" property="customerId" />
+        <result column="address_id" property="addressId" />
+        <result column="reder_id" property="rederId" />
+        <result column="order_content" property="orderContent" />
+        <result column="s_longitude" property="sLongitude" />
+        <result column="s_latitude" property="sLatitude" />
+        <result column="r_longitude" property="rLongitude" />
+        <result column="r_latitude" property="rLatitude" />
+        <result column="price" property="price" />
+        <result column="distance" property="distance" />
+        <result column="status" property="status" />
+        <result column="pay_date" property="payDate" />
+        <result column="rider_accept_date" property="riderAcceptDate" />
+        <result column="rider_get_date" property="riderGetDate" />
+        <result column="rider_send_date" property="riderSendDate" />
+        <result column="rider_complete_date" property="riderCompleteDate" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="user_evaluate" property="userEvaluate" />
+        <result column="user_score" property="userScore" />
+        <result column="order_type" property="orderType" />
+        <result column="goods_weight" property="goodsWeight" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, customer_id, address_id, reder_id, order_content, s_longitude, s_latitude, r_longitude, r_latitude, price, distance, status, pay_date, rider_accept_date, rider_get_date, rider_send_date, rider_complete_date, create_time, update_time, user_evaluate, user_score, order_type, goods_weight
+    </sql>
+
+</mapper>
