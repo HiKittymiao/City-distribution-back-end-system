@@ -1,6 +1,7 @@
 package org.example.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.example.common.R;
@@ -44,5 +45,52 @@ public class CustomController {
     public R uerGetCustomId(String phone){
         return iCustomService.GetCustomId(phone);
     }
+
+    @ApiOperation(value = "点击传 头像 跟 名字  获取所有 当前客户信息")
+    @GetMapping("/getCustom")
+    public R getCustom(@RequestParam("avatarUrl")String avatarUrl,@RequestParam("nickName")String nickName,@RequestParam("phone")String phone){
+
+        Custom custom = iCustomService.getOne(new LambdaQueryWrapper<Custom>().eq(Custom::getPhone,phone));
+        custom.setName(nickName);
+        custom.setUserFace(avatarUrl);
+        boolean b = iCustomService.updateById(custom);
+        return R.success("成功",custom);
+    }
+
+    @ApiOperation(value = "根据id查询顾客信息")
+    @GetMapping("/queryById")
+    public R getCustomById(Integer id){
+
+        Custom byId = iCustomService.getById(id);
+        if (byId!=null){
+            return R.success("查询成功",byId);
+
+        }
+        return R.error("未知错误");
+
+    }
+
+    @ApiOperation(value="根据手机号码查客户信息")
+    @GetMapping("/queryByPhone")
+    public R queryByPhone(@RequestParam("phone")String phone){
+
+        Custom one = iCustomService.getOne(new LambdaQueryWrapper<Custom>().eq(Custom::getPhone, phone));
+        if (one!=null){
+            return R.success("查询成功",one);
+        }
+
+        return R.error("查询失败");
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 }

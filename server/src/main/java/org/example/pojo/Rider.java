@@ -109,5 +109,19 @@ public class Rider implements Serializable {
     @TableField("persion_id")
     private String persionId;
 
+    @ApiModelProperty(value = "已提现金额")
+    @TableField("already_money")
+    private Double alreadyMoney;
+
+
+    @ApiModelProperty(value = "公里数")
+    @TableField("kilometre")
+    private Double kilometre;
+
+
+
+
+
+
 
 }

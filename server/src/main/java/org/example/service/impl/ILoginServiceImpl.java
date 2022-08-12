@@ -52,6 +52,9 @@ public class ILoginServiceImpl implements ILoginService {
 
     @Override
     public R login(String username, String password) {
+
+        String s1 = username;
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         Admin admin =  (Admin)userDetails;

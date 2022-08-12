@@ -41,16 +41,18 @@ public class CustomServiceImpl extends ServiceImpl<CustomMapper, Custom> impleme
         if (one==null){
             return R.error("用户不存在");
         }
-        return R.success(String.valueOf(one.getId()));
+        return R.success("查询成功",one.getId());
     }
 
     @Override
     public Admin getAdminByUserName(String username) {
         Admin admin = new Admin();
-        Custom custom = this.getOne(new QueryWrapper<Custom>().eq("user_name",username));
+        Custom custom = this.getOne(new QueryWrapper<Custom>().eq("phone",username));
         if (custom!=null){
-            admin.setUserName(custom.getUserName());
+            admin.setAdminId(custom.getId());
+            admin.setUserName(custom.getPhone());
             admin.setPassword(custom.getPassword());
+            admin.setAdminType(2);
         }
         else {
             return null;

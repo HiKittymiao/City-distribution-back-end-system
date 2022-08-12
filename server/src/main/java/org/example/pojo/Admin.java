@@ -26,6 +26,9 @@ import java.util.Collection;
 public class Admin implements Serializable, UserDetails {
 
 
+    private Integer adminId;
+
+
     @ApiModelProperty(value = "用户名")
     @TableField("user_name")
     private String userName;
@@ -42,6 +45,9 @@ public class Admin implements Serializable, UserDetails {
     @ApiModelProperty(value = "是否启用")
     @Getter(AccessLevel.NONE)
     private Integer enabled;
+
+
+    private Integer adminType;
 
 
     @Override

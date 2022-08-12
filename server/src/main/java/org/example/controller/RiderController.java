@@ -1,9 +1,11 @@
 package org.example.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.example.common.R;
+import org.example.pojo.Custom;
 import org.example.pojo.Rider;
 import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
@@ -88,5 +90,60 @@ public class RiderController {
         return  iOrdersService.killOrder(rider_id,order_id);
 
     }
+
+
+
+
+    @ApiOperation(value = "通过电话好码查询骑手ID")
+    @GetMapping("/userGetId")
+    public R uerGetCustomId(String phone){
+        Rider one = iRiderService.getOne(new LambdaQueryWrapper<Rider>().select(Rider::getId).eq(Rider::getPhone, phone));
+        if (one !=null){
+            return R.success("查询成功",one.getId());
+        }
+
+        return R.error("查询失败");
+    }
+
+    @ApiOperation(value = "点击传 头像 跟 名字  获取所有 当前骑手信息")
+    @GetMapping("/getCustom")
+    public R getCustom(@RequestParam("avatarUrl")String avatarUrl,@RequestParam("nickName")String nickName,@RequestParam("phone")String phone){
+
+        Rider custom = iRiderService.getOne(new LambdaQueryWrapper<Rider>().eq(Rider::getPhone,phone));
+        custom.setRiderUserName(nickName);
+        custom.setRiderAvatar(avatarUrl);
+        boolean b = iRiderService.updateById(custom);
+        return R.success("成功",custom);
+    }
+
+
+
+
+
+    @ApiOperation(value = "根据id查询骑手信息")
+    @GetMapping("/queryById")
+    public R getCustomById(Integer id){
+        Rider byId = iRiderService.getById(id);
+        if (byId!=null){
+            return R.success("查询成功",byId);
+
+        }
+        return R.error("未知错误");
+
+    }
+
+
+    @ApiOperation(value="根据手机号码查客户信息")
+    @GetMapping("/queryByPhone")
+    public R queryByPhone(@RequestParam("phone")String phone){
+
+        Rider one = iRiderService.getOne(new LambdaQueryWrapper<Rider>().eq(Rider::getPhone, phone));
+        if (one!=null){
+            return R.success("查询成功",one);
+        }
+        return R.error("查询失败");
+    }
+
+
 
 }

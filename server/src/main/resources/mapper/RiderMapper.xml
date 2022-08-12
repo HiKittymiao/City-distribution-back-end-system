@@ -26,6 +26,8 @@
         <result column="enabled" property="enabled"/>
         <result column="del_flag" property="delFlag"/>
         <result column="persion_id" property="persionId"/>
+        <result column="already_money" property="alreadyMoney"/>
+        <result column="kilometre" property="kilometre"/>
 
     </resultMap>
 

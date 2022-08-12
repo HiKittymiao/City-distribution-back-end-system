@@ -27,10 +27,12 @@ public class RiderServiceImpl extends ServiceImpl<RiderMapper, Rider> implements
     @Override
     public Admin getAdminByUserName(String username) {
         Admin admin = new Admin();
-        Rider rider = this.getOne(new QueryWrapper<Rider>().eq("rider_user_name",username));
+        Rider rider = this.getOne(new QueryWrapper<Rider>().eq("phone",username));
         if (rider!=null){
-            admin.setUserName(rider.getRiderUserName());
+            admin.setAdminId(rider.getId());
+            admin.setUserName(rider.getPhone());
             admin.setPassword(rider.getPassword());
+            admin.setAdminType(1);
         }
         else {
             return null;
