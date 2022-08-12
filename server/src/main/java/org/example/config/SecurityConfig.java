@@ -119,7 +119,7 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
                 "/js/**","/index.html",
                 "/favicon.ico","/doc.html",
                 "/webjars/**","/swagger-resources/**"
-                ,"/v2/api-docs/**","/captcha"
+                ,"/v2/api-docs/**","/captcha","/examine/add"
 
 
         );

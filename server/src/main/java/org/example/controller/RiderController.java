@@ -10,6 +10,7 @@ import org.example.pojo.Rider;
 import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,9 @@ public class RiderController {
     private IRiderService iRiderService;
     @Autowired
     private IOrdersService iOrdersService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * @param rider
@@ -143,6 +147,31 @@ public class RiderController {
         }
         return R.error("查询失败");
     }
+
+    @ApiOperation(value="修改密码")
+    @GetMapping("/updatePassword")
+    public R updatePassword(@RequestParam("phone")String phone,@RequestParam("password")String password){
+
+        Rider rider = new Rider();
+        Rider one = iRiderService.getOne(new LambdaQueryWrapper<Rider>().eq(Rider::getPhone, phone));
+        if (one!=null){
+            rider.setId(one.getId());
+            password = passwordEncoder.encode(password);
+            rider.setPassword(password);
+            boolean b = iRiderService.updateById(rider);
+            if (b){
+                return R.success("修改密码成功");
+            }
+
+
+        }
+            return R.error("手机号码有误");
+
+    }
+
+
+
+
 
 
 
