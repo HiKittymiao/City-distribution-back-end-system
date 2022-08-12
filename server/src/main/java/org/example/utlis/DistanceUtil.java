@@ -63,7 +63,7 @@ public class DistanceUtil {
      * @return PriceAndDistance
      * @author 聪懿
      * @date 2022/8/8 17:33
-     * @description 计算价格和距离
+     * @description 计算价格和距离输出公里
      **/
     public static PriceAndDistance getDistance(OrderDetial order) {
         PriceAndDistance priceAndDistance = new PriceAndDistance();
@@ -83,15 +83,15 @@ public class DistanceUtil {
         priceAndDistance.setDistance(distance);
 
         double price =0.00;
-        if(distance<=3000)
+        if(distance<=3)
         {
             price += 5;
         }
-        else if (distance>3000) {
-            price+=10;
+        else if (distance>3) {
+            price+=5;
             //三公里后每公里加3元
-            for (int i = 0; i < distance/1000; i++) {
-                price+=3;
+            for (int i = 0; i < (int)distance-3; i++) {
+                price+=2;
             }
         }
         int weight = order.getGoodsWeight();

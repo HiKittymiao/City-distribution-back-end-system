@@ -1,10 +1,8 @@
 package org.example.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -12,8 +10,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -51,17 +47,29 @@ public class Orders implements Serializable {
     @TableField("reder_id")
     private Integer rederId;
 
-    //@ApiModelProperty(value = "发送者电话号码")
-    //@TableField("s_phone")
-    //private Integer sPhone;
-
+    @ApiModelProperty(value = "发送者电话号码")
+    @TableField("s_phone")
+    private String senderPhone;
     @ApiModelProperty(value = "发送者用户名")
     @TableField("s_name")
-    private String sName;
+    private String senderName;
+    @ApiModelProperty(value = "发件人地址")
+    @TableField("sender_address")
+    private String senderAddress;
+
+    @ApiModelProperty(value = "接受用户的名字")
+    @TableField("r_name")
+    private String addresseeName;
+    @ApiModelProperty(value = "接收者电话号码")
+    @TableField("r_phone")
+    private String addresseePhone;
+    @ApiModelProperty(value = "收件人地址")
+    @TableField("addressee_address")
+    private String addresseeAddress;
 
     @ApiModelProperty(value = "订单内容")
     @TableField("order_content")
-    private String orderContent;
+    private String goodsDescribe;
 
     @ApiModelProperty(value = "起始经")
     @TableField("s_longitude")
@@ -70,14 +78,6 @@ public class Orders implements Serializable {
     @ApiModelProperty(value = "起始纬")
     @TableField("s_latitude")
     private Double sLatitude;
-
-    @ApiModelProperty(value = "接受用户的名字")
-    @TableField("r_name")
-    private String rName;
-
-    @ApiModelProperty(value = "接收者电话号码")
-    @TableField("r_phone")
-    private String r_Phone;
 
     @ApiModelProperty(value = "终点经纬")
     @TableField("r_longitude")
@@ -94,7 +94,8 @@ public class Orders implements Serializable {
     private Double distance;
 
     @ApiModelProperty(value = "订单状态;0：开启订单顾客未支付，1：顾客已支付骑手未取货，2骑手已取货正在配送，3货物成功送达目的地，4订单完成,5订单被取消")
-    private Integer status;
+    @TableField("status")
+    private Integer statue;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

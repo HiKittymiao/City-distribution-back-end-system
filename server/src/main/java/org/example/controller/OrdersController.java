@@ -9,9 +9,11 @@ import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -29,6 +31,9 @@ public class OrdersController {
 
     @Autowired
     private ICustomService iCustomService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/distance")
     @ApiOperation(value = "计算距离")
@@ -53,6 +58,7 @@ public class OrdersController {
         //生成订单返回订单号
         String s = iOrdersService.newOrder(orderDetial, pd);
         HashMap<String, String> map = new HashMap<>();
+        map.put("onlytime", redisTemplate.getExpire("no_pay:"+s).toString());
         map.put("distance",pd.getDistance().toString());
         map.put("price",pd.getPrice().toString());
         map.put("order",s);

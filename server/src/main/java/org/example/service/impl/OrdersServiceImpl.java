@@ -48,19 +48,25 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Orders order = new Orders();
         String id = newId();
         order.setId(Long.valueOf(id));
-        order.setSName(o.getSName());
-        order.setRName(o.getRName());
-        order.setR_Phone(o.getRPhone());
-        order.setCustomerId(o.getCustomerId());
         order.setAddressId(5);
-        order.setOrderContent(o.getOrderContent());
+        order.setSenderName(o.getSenderName());
+        order.setAddresseeName(o.getAddresseeName());
+        order.setAddresseePhone(o.getAddresseePhone());
+        order.setCustomerId(o.getCustomerId());
+        order.setGoodsDescribe(o.getGoodsDescribe());
         order.setSLongitude(o.getSLongitude());
         order.setSLatitude(o.getSLatitude());
         order.setRLongitude(o.getRLongitude());
         order.setRLatitude(o.getRLatitude());
+        order.setSenderAddress(o.getSenderAddress());
+        order.setSenderPhone(o.getSenderPhone());
+        order.setSenderName(o.getSenderName());
+        order.setAddresseeName(o.getAddresseeName());
+        order.setAddresseePhone(o.getAddresseePhone());
+        order.setAddresseeAddress(o.getAddresseeAddress());
         order.setPrice(pd.getPrice());
         order.setDistance(pd.getDistance());
-        order.setStatus(0);
+        order.setStatue(0);
         order.setGoodsWeight(o.getGoodsWeight());
         //输出当前时间
         LocalDateTime dateTime = LocalDateTime.now();
@@ -119,7 +125,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             //删除未付款订单
             redisTemplate.delete("no_pay:" + orderId);
             //订单状态设置为1付款成功还没骑手接单
-            o.setStatus(1);
+            o.setStatue(1);
             LocalDateTime dateTime = LocalDateTime.now();
             o.setPayDate(dateTime);
             //更新数据库
@@ -173,7 +179,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             order.setRederId(rideId);
             LocalDateTime dateTime = LocalDateTime.now();
             order.setRiderAcceptDate(dateTime);
-            order.setStatus(2);
+            order.setStatue(2);
             order.setUpdateTime(dateTime);
             redisTemplate.opsForHash().put("Rider:"+rideId,id.toString(), order);
             //根据骑手id生成id为空间的散列然后删除支付过的订单
