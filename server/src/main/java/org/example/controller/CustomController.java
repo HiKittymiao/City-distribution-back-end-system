@@ -2,6 +2,8 @@ package org.example.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.example.common.R;
@@ -69,7 +71,6 @@ public class CustomController {
         return R.error("未知错误");
 
     }
-
     @ApiOperation(value="根据手机号码查客户信息")
     @GetMapping("/queryByPhone")
     public R queryByPhone(@RequestParam("phone")String phone){
@@ -81,6 +82,22 @@ public class CustomController {
 
         return R.error("查询失败");
     }
+
+
+
+    @ApiOperation(value="更新客户信息")
+    @PutMapping("/update")
+    public R update(@RequestBody  Custom custom){
+        boolean b = iCustomService.update(custom,new LambdaUpdateWrapper<Custom>().eq(Custom::getPhone,custom.getPhone()));
+        if (b){
+            return R.success("更新成功");
+        }
+        return R.error("更新失败");
+    }
+
+
+
+
 
 
 
