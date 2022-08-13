@@ -12,6 +12,8 @@ import org.example.service.ICustomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 /**
  * <p>
  *  前端控制器
@@ -88,6 +90,11 @@ public class CustomController {
     @ApiOperation(value="更新客户信息")
     @PutMapping("/update")
     public R update(@RequestBody  Custom custom){
+        double money = custom.getMoney();
+        BigDecimal two = new BigDecimal(money);
+        money = two.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        custom.setMoney(money);
+        System.out.println(money);
         boolean b = iCustomService.update(custom,new LambdaUpdateWrapper<Custom>().eq(Custom::getPhone,custom.getPhone()));
         if (b){
             return R.success("更新成功");
