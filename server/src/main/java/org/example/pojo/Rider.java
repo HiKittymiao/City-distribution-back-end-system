@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -48,10 +50,12 @@ public class Rider implements Serializable {
     private Integer riderStatus;
 
     @ApiModelProperty(value = "注册时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     @TableField("create_time")
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     @TableField("update_time")
     private LocalDateTime updateTime;
 
@@ -76,7 +80,9 @@ public class Rider implements Serializable {
     private String wxId;
 
     @ApiModelProperty(value = "到期时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     @TableField("expire_time")
+
     private LocalDateTime expireTime;
 
     @ApiModelProperty(value = "邮箱")
