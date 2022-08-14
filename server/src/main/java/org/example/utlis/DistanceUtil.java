@@ -71,7 +71,6 @@ public class DistanceUtil {
                 * Math.pow(Math.sin(b / 2), 2)));
         distance = distance * EARTH_RADIUS;
         distance = Math.round(distance * 10000d) / 10000d;
-        distance = distance * 1000*1000;
 
         priceAndDistance.setDistance(distance);
 
