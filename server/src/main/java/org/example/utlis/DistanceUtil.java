@@ -33,7 +33,7 @@ public class DistanceUtil {
      * @param lng1
      * @param lat2
      * @param lng2
-     * @return 距离
+     * @return 距离米
      */
     public static double getDistance2(double lat1, double lng1, double lat2,
                                      double lng2 ) {
@@ -48,14 +48,6 @@ public class DistanceUtil {
         s = Math.round(s * 10000d) / 10000d;
         s = s * 1000;
 
-        double price =0.0;
-        if(s<1)
-        {
-            price += 5;
-        }else if(s>=1&&s<=3)
-        {
-            price+=10;
-        }
         return s;
     }
     /**
@@ -79,7 +71,8 @@ public class DistanceUtil {
                 * Math.pow(Math.sin(b / 2), 2)));
         distance = distance * EARTH_RADIUS;
         distance = Math.round(distance * 10000d) / 10000d;
-        distance = distance * 1000;
+        distance = distance * 1000*1000;
+
         priceAndDistance.setDistance(distance);
 
         double price =0.00;

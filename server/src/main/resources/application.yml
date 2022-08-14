@@ -57,19 +57,19 @@ spring:
     # 消息确认回调
     publisher-confirm-type: correlated
 
-  #  rabbitmq:
-  #    # 用户名
-  #    username: admin
-  #    # 密码
-  #    password: 123
-  #    # 服务器地址
-  #    host: 192.168.208.138
-  #    # 端口
-  #    port: 5672
-  #    listener:
-  #      simple:
-  #        # 手动确认
-  #        acknowledge-mode: manual
+#  rabbitmq:
+#    # 用户名
+#    username: admin
+#    # 密码
+#    password: 123
+#    # 服务器地址
+#    host: 192.168.208.138
+#    # 端口
+#    port: 5672
+#    listener:
+#      simple:
+#        # 手动确认
+#        acknowledge-mode: manual
 
 
   servlet:

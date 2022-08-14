@@ -1,26 +1,29 @@
 package org.example.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.common.R;
 import org.example.dto.OrderDetial;
 import org.example.mapper.OrdersMapper;
+import org.example.pojo.Custom;
 import org.example.pojo.Orders;
 import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
 import org.example.utlis.DistanceUtil;
+import org.example.utlis.RedisBeanMapUtil;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,6 +45,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     ICustomService iCustomService;
     @Autowired
     private IRiderService iRiderService;
+    @Resource
+    private RedisBeanMapUtil util;
 
     @Override
     public String newOrder(OrderDetial o, PriceAndDistance pd) {
@@ -114,7 +119,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     public Boolean PayOrder(Long orderId, Integer customer_id) {
         //通过订单号查询Redis得到订单实体类
         Orders o = (Orders) redisTemplate.opsForValue().get("no_pay:" + orderId);
-        System.out.println(o);
+        //System.out.println(o);
         if (o == null) {
             return false;
         }
@@ -130,12 +135,25 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             o.setPayDate(dateTime);
             //更新数据库
             updateById(o);
-            //更新redis设置过期时间2天
-            redisTemplate.opsForValue().set("payed:" + orderId, o, 48, TimeUnit.HOURS);
+            //保存订单内容到Redis的hash
+            //HashOperations<String,Object,Object> hashOperations = redisTemplate.opsForHash();
+            //try {
+            //    util.parseMap("order:"+orderId,hashOperations,o);
+            //} catch (Exception e) {
+            //    e.printStackTrace();
+            //}
+
+            Map<String, Object> map = BeanUtil.beanToMap(o);
+            redisTemplate.opsForHash().putAll("order:"+orderId,map);
+
+
+            //redisTemplate.opsForHash().putAll("order:"+orderId,util.beanToMap(o));
+            //订单内容redis设置过期时间2天
+            redisTemplate.expire("order:"+orderId,2,TimeUnit.DAYS);
+
             //要抢单的订单进入Redis的集合
             redisTemplate.opsForSet().add("kill_order", o.getId());
         }
-        System.out.println(o.toString());
         return aBoolean;
     }
 
@@ -186,7 +204,14 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             redisTemplate.delete("payed:" + id);
             return R.success("抢单成功", order);
         }
-
         return R.success("抢单不成功");
+    }
+
+    @Override
+    public R cancelOrder(Long id, String customer_id) {
+        Custom c = iCustomService.getById(customer_id);
+        if(c==null){return R.error("用户不存在");}
+        if(c.getEnabled()==false){return R.error("账号被冻结");}
+        return R.success("订单取消成功");
     }
 }

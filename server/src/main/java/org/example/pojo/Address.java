@@ -33,49 +33,7 @@ public class Address implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "用户id")
-    @TableField("customer_id")
-    private Integer customerId;
 
-    @ApiModelProperty(value = "发送者用户名")
-    @TableField("s_name")
-    private String sName;
-
-    @ApiModelProperty(value = "发送者电话号码")
-    @TableField("s_phone")
-    private String sPhone;
-
-    @ApiModelProperty(value = "发送者地址")
-    @TableField("s_address")
-    private String sAddress;
-
-    @ApiModelProperty(value = "发送者经度地址")
-    @TableField("s_longitude")
-    private Double sLongitude;
-
-    @ApiModelProperty(value = "发送者维度地址")
-    @TableField("s_latitude")
-    private Double sLatitude;
-
-    @ApiModelProperty(value = "需要送达的接受用户名字")
-    @TableField("r_name")
-    private String rName;
-
-    @ApiModelProperty(value = "接收者电话号码")
-    @TableField("r_phone")
-    private String rPhone;
-
-    @ApiModelProperty(value = "接收者目的地址")
-    @TableField("r_address")
-    private String rAddress;
-
-    @ApiModelProperty(value = "接收者目的地经度")
-    @TableField("r_longitude")
-    private Double rLongitude;
-
-    @ApiModelProperty(value = "接收者目的地纬度")
-    @TableField("r_latitude")
-    private Double rLatitude;
 
     @ApiModelProperty(value = "0为正常使用1为已删除")
     @TableField("del_flag")

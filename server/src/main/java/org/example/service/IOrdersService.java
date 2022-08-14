@@ -84,4 +84,13 @@ public interface IOrdersService extends IService<Orders> {
      **/
     R killOrder(Integer RiderId, Long id);
 
+    /**
+     * @param id
+     * @param customer_id
+     * @return void
+     * @author 聪懿
+     * @date 2022/8/13 19:32
+     * @description 未付款取消订单
+     **/
+    R cancelOrder(Long id, String customer_id);
 }
