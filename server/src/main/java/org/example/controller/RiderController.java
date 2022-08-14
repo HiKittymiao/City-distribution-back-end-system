@@ -95,9 +95,6 @@ public class RiderController {
 
     }
 
-
-
-
     @ApiOperation(value = "通过电话好码查询骑手ID")
     @GetMapping("/userGetId")
     public R uerGetCustomId(String phone){
@@ -119,9 +116,6 @@ public class RiderController {
         boolean b = iRiderService.updateById(custom);
         return R.success("成功",custom);
     }
-
-
-
 
 
     @ApiOperation(value = "根据id查询骑手信息")
@@ -169,8 +163,11 @@ public class RiderController {
 
     }
 
-
-
+    @ApiOperation(value = "骑手端确认收货")
+    @PutMapping("/confirmGoods/{orderId}")
+    public R confirmGoods(@PathVariable Long orderId){
+        return iOrdersService.confirmGoods(orderId);
+    }
 
 
 

@@ -119,6 +119,7 @@ public class Orders implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @ApiModelProperty(value = "骑手到达顾客地时间")
     @TableField("rider_get_date")
+
     private LocalDateTime riderGetDate;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
