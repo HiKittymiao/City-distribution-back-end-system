@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.common.R;
 import org.example.pojo.Address;
 
-import java.util.List;
-
 /**
  * @ClassName: ICustomAddressService
  * @Author: MaCongYi

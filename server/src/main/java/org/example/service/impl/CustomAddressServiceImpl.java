@@ -24,7 +24,7 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
         }
         QueryWrapper<Object> UpdateWrapper = new QueryWrapper<>();
         Address address = new Address();
-        address.setDelFlag(1);
+        address.setDelFlag(false);
         address.setId(id);
         if (updateById(address)!=true) {
             R.error("删除失败");
@@ -34,7 +34,7 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
 
     @Override
     public R CustomSaveAddresss(Address address) {
-        address.setDelFlag(0);
+        address.setDelFlag(true);
         if (save(address)!=true){
             return R.error("添加失败");
         }
@@ -47,8 +47,8 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
             return R.error("顾客id为空");
         }
         QueryWrapper<Address> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("customer_id",customerId);
-        return R.success("全部地址查询成功",list(queryWrapper));
+        queryWrapper.eq("customer_id",customerId).eq("del_flag",true);
+        return R.success("全部地址查询成功",this.list(queryWrapper));
 
     }
 }

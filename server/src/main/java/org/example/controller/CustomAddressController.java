@@ -1,18 +1,13 @@
 package org.example.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.example.common.R;
 import org.example.pojo.Address;
 import org.example.service.ICustomAddressService;
 import org.example.service.IOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * @ClassName: CustomAddressController

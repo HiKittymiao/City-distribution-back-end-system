@@ -1,7 +1,7 @@
 package org.example.mapper;
 
-import org.example.pojo.Address;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.example.pojo.Address;
 
 /**
  * <p>
