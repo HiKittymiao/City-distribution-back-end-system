@@ -77,7 +77,7 @@ public class test {
     }
     @Test
     public void fdsaf(){
-        List<Map<String,Object>> killOrderDetail = iOrdersService.getKillOrderDetail(iOrdersService.getKillOrder());
+        List<Orders> killOrderDetail = iOrdersService.getKillOrderDetail(iOrdersService.getKillOrder());
         killOrderDetail.stream().forEach(System.out::println);
     }
 

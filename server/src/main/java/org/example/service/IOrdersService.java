@@ -66,7 +66,7 @@ public interface IOrdersService extends IService<Orders> {
      * @date 2022/8/10 18:59
      * @description 根据订单号返回可抢订单内容
      **/
-    List<Map<String,Object>> getKillOrderDetail(Set id);
+    List<Orders> getKillOrderDetail(Set id);
     /**
      * @param
      * @return java.util.List<org.example.pojo.Orders>
@@ -100,7 +100,7 @@ public interface IOrdersService extends IService<Orders> {
      * @return org.example.common.R
      * @author 聪懿
      * @date 2022/8/14 21:00
-     * @description 骑手确定收货
+     * @description 骑手确定取货
      **/
     R confirmGoods(Long orderId);
 

@@ -131,7 +131,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Boolean aBoolean = iCustomService.ruduceMoney(customer_id, o.getPrice());
         if (aBoolean) {
             //删除未付款订单
-            redisTemplate.delete("no_pay:" + orderId);
+            //redisTemplate.delete("no_pay:" + orderId);
             //订单状态设置为1付款成功还没骑手接单
             o.setStatue(1);
             LocalDateTime dateTime = LocalDateTime.now();
@@ -152,7 +152,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
             //redisTemplate.opsForHash().putAll("order:"+orderId,util.beanToMap(o));
             //订单内容redis设置过期时间2天
-            redisTemplate.expire("order:"+orderId,2,TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("orders:"+orderId,null,2,TimeUnit.DAYS);
 
             //要抢单的订单进入Redis的集合
             redisTemplate.opsForSet().add("kill_order", o.getId());
@@ -167,10 +167,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public List<Map<String,Object>> getKillOrderDetail(Set ids) {
-        ArrayList<Map<String,Object>> orders = new ArrayList<>();
+    public List<Orders> getKillOrderDetail(Set ids) {
+        ArrayList<Orders> orders = new ArrayList<>();
         ids.forEach((i) -> {
-            orders.add( redisTemplate.opsForHash().entries("order:" + i));
+            orders.add((Orders) redisTemplate.opsForValue().get("no_pay:" + i));
         });
         return orders;
     }
@@ -180,7 +180,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Set kill_order = redisTemplate.opsForSet().members("kill_order");
         ArrayList<Orders> orders = new ArrayList<>();
         kill_order.forEach((i) -> {
-            orders.add((Orders) redisTemplate.opsForValue().get("order:" + i));
+            orders.add((Orders) redisTemplate.opsForValue().get("no_pay:" + i));
         });
         return orders;
     }
