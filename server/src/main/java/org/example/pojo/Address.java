@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author mcy
@@ -39,15 +39,15 @@ public class Address implements Serializable {
 
     @ApiModelProperty(value = "发送者用户名")
     @TableField("s_name")
-    private String sName;
+    private String senderName;
 
     @ApiModelProperty(value = "发送者电话号码")
     @TableField("s_phone")
-    private String sPhone;
+    private String senderPhone;
 
     @ApiModelProperty(value = "发送者地址")
     @TableField("s_address")
-    private String sAddress;
+    private String senderAddress;
 
     @ApiModelProperty(value = "发送者经度地址")
     @TableField("s_longitude")
@@ -59,11 +59,11 @@ public class Address implements Serializable {
 
     @ApiModelProperty(value = "需要送达的接受用户名字")
     @TableField("r_name")
-    private String rName;
+    private String addresseeName;
 
     @ApiModelProperty(value = "接收者电话号码")
     @TableField("r_phone")
-    private String rPhone;
+    private String addresseePhone;
 
     @ApiModelProperty(value = "接收者目的地址")
     @TableField("r_address")
