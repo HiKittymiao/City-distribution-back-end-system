@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.common.R;
 import org.example.dto.OrderDetial;
@@ -79,7 +80,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         order.setOrderType(o.getOrderType());
         order.setEstimatedTime(dateTime.plusMinutes(30));
         redisTemplate.opsForValue().set("no_pay:" + id, order, 30, TimeUnit.MINUTES);
-        //save(order);
+        save(order);
         return id;
     }
 
@@ -270,15 +271,15 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     public R deliveriedGoods(Integer rider_id, Long order_id,Double x,Double y) {
         Integer rederId = (Integer)redisTemplate.opsForHash().get("order:" + order_id, "rederId");
-        double ox = (double)redisTemplate.opsForHash().get("order:" + order_id, "sLongitude");
-        double oy = (double)redisTemplate.opsForHash().get("order:" + order_id, "sLatitude");
+        double ox = (double)redisTemplate.opsForHash().get("order:" + order_id, "rLongitude");
+        double oy = (double)redisTemplate.opsForHash().get("order:" + order_id, "rLatitude");
         Integer integer = (Integer)redisTemplate.opsForHash().get("order:" + order_id, "statue");
         //不是本骑手
         if (rederId!=rider_id){ return R.error("非法操作");}
         //未到取件范围
         double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
         //System.out.println(distance2);
-        if (distance2>0.5d){return R.success("请到取件地点再点击收货");}
+        if (distance2>0.5d){return R.success("请到目的地再点击送达");}
         if (integer != 4) {
             return R.success("禁止重复操作");
         }
@@ -295,5 +296,14 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Map<String, Integer> entries = redisTemplate.opsForHash().entries("rider:" + orderId);
         entries.forEach((k, v) -> System.out.println(k + "-" + v));
         return R.success("返回一天内所以该骑手所以的订单状态", entries);
+    }
+
+    @Override
+    public R getOrders(Integer customId) {
+        QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("customer_id",customId);
+        List<Orders> list = this.list(queryWrapper);
+        if (list==null){R.success("未查询到订单信息");}
+        return R.success("查询成功",list);
     }
 }

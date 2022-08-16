@@ -1,14 +1,12 @@
 package org.example.service;
 
-import io.swagger.models.auth.In;
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.common.R;
 import org.example.dto.OrderDetial;
 import org.example.pojo.Orders;
-import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.vo.PriceAndDistance;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -132,4 +130,7 @@ public interface IOrdersService extends IService<Orders> {
      * @description 骑手已将物品送达指定目的地
      **/
     R deliveriedGoods(Integer rider_id, Long order_id,Double x,Double y);
+
+
+    R getOrders(Integer customId);
 }
