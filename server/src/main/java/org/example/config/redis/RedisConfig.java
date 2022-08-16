@@ -37,18 +37,6 @@ public class RedisConfig extends CachingConfigurerSupport {
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 
 
-        //RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        //
-        ////key序列化
-        //redisTemplate.setKeySerializer(new StringRedisSerializer());
-        ////value序列化
-        //redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        ////hash类型value序列化
-        //redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        //redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
-        ////注入连接工厂
-        //redisTemplate.setConnectionFactory(redisConnectionFactory);
-        //return redisTemplate;
 
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -65,21 +53,43 @@ public class RedisConfig extends CachingConfigurerSupport {
         om.registerModule(new JavaTimeModule());
         // 指定序列化输入的类型，类必须是非final修饰的，final修饰的类，比如String,Integer等会跑出异常
         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+
+
         jacksonSeial.setObjectMapper(om);
 
         // 值采用json序列化
         template.setValueSerializer(jacksonSeial);
         //使用StringRedisSerializer来序列化和反序列化redis的key值
+
+        //om.registerModule(new Jdk8Module())
+        //        .registerModule(new JavaTimeModule())
+        //        .registerModule(new ParameterNamesModule());
+
         template.setKeySerializer(new StringRedisSerializer());
         // 设置hash key 和value序列化模式
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(jacksonSeial);
         template.afterPropertiesSet();
         // 日期序列化处理
-        om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        om.registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule())
-                .registerModule(new ParameterNamesModule());
+
+
+
+        //RedisTemplate<String, Object> template = new RedisTemplate<>();
+        ////key序列化
+        //template.setKeySerializer(new StringRedisSerializer());
+        ////value序列化
+        //template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        ////hash类型value序列化
+        //template.setHashKeySerializer(new StringRedisSerializer());
+        //template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        ////注入连接工厂
+        //template.setConnectionFactory(redisConnectionFactory);
+        //return template;
+
+        //开启事物
+        //template.setEnableTransactionSupport(true);
         return template;
     }
 

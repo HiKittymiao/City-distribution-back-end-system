@@ -14,9 +14,8 @@ import org.example.utlis.DistanceUtil;
 import org.example.utlis.RedisBeanMapUtil;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,14 +39,13 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Autowired
     StringRedisTemplate stringRedisTemplate;
     @Autowired
-     RedisTemplate redisTemplate;
+    RedisTemplate redisTemplate;
     @Autowired
     ICustomService iCustomService;
     @Autowired
     private IRiderService iRiderService;
     @Resource
     private RedisBeanMapUtil util;
-
 
 
     @Override
@@ -81,7 +79,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         order.setOrderType(o.getOrderType());
         order.setEstimatedTime(dateTime.plusMinutes(30));
         redisTemplate.opsForValue().set("no_pay:" + id, order, 30, TimeUnit.MINUTES);
-        save(order);
+        //save(order);
         return id;
     }
 
@@ -147,12 +145,12 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             //}
 
             Map<String, Object> map = BeanUtil.beanToMap(o);
-            redisTemplate.opsForHash().putAll("order:"+orderId,map);
+            redisTemplate.opsForHash().putAll("order:" + orderId, map);
 
 
             //redisTemplate.opsForHash().putAll("order:"+orderId,util.beanToMap(o));
             //订单内容redis设置过期时间2天
-            redisTemplate.opsForValue().set("orders:"+orderId,null,2,TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("orders:" + orderId, null, 2, TimeUnit.DAYS);
 
             //要抢单的订单进入Redis的集合
             redisTemplate.opsForSet().add("kill_order", o.getId());
@@ -188,53 +186,114 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     public R killOrder(Integer rideId, Long orderId) {
         HashOperations ops = redisTemplate.opsForHash();
-
         if (!iRiderService.isRider(1)) {
             return R.error("骑手不存在");
         }
-        //移除kill_order集合的订单成功返回该订单值
-        Long kill_order = -1l;
-        kill_order = redisTemplate.opsForSet().remove("kill_order", orderId);
-        System.out.println(kill_order);
-        if (kill_order == 1) {
-            //Orders order = (Orders)redisTemplate.opsForValue().get("payed:" +orderId);
-            //redisTemplate.delete("payed:" +orderId);
-            //order.setRederId(rideId);
-            //LocalDateTime dateTime = LocalDateTime.now();
-            //order.setRiderAcceptDate(dateTime);
-            //order.setStatue(2);
-            //order.setUpdateTime(dateTime);
-            //redisTemplate.opsForHash().put("Rider:"+rideId,orderId.toString(), order);
-            ////根据骑手id生成id为空间的散列然后删除支付过的订单
-            //redisTemplate.delete("payed:" + orderId);
-            //更新redis订单表
-            LocalDateTime now = LocalDateTime.now();
-            String id = String.valueOf(orderId);
-            ops.put("order:" + id,"statue",2);
-            ops.put("order:" + id,"riderAcceptDate",now);
-
-            //将订单添加到骑手表
-            ops.put("rider:"+rideId, id,2);
-
-            Map entries = ops.entries("order" + id);
-            return R.success("抢单成功", id);
+        if (redisTemplate.opsForHash().get("order:" + orderId, "rederId") != null) {
+            return R.success("抢单失败");
         }
-        return R.success("抢单不成功");
+        redisTemplate.execute(new SessionCallback() {
+            @Override
+            public Object execute(RedisOperations operations) throws DataAccessException {
+                operations.watch("order:" + orderId);
+                operations.multi();
+                //更新redis订单表
+                LocalDateTime now = LocalDateTime.now();
+                operations.opsForHash().put("order:" + orderId, "rederId", rideId);
+                operations.opsForHash().put("order:" + orderId, "statue", 2); //ops.increment("order:" + id,"statue",1d);
+                operations.opsForHash().put("order:" + orderId, "riderAcceptDate", now);
+                return operations.exec();
+            }
+        });
+        //移除kill_order集合的订单成功返回该订单值
+        redisTemplate.opsForSet().remove("kill_order", orderId);
+        //删除未付款订单
+        redisTemplate.delete("no_pay:" + orderId);
+        //将订单添加到骑手表
+        ops.put("rider:" + rideId, orderId.toString(), 2);
+        return R.success("抢单成功");
     }
 
     @Override
     public R cancelOrder(Long id, String customer_id) {
         Custom c = iCustomService.getById(customer_id);
-        if(c==null){return R.error("用户不存在");}
-        if(c.getEnabled()==false){return R.error("账号被冻结");}
+        if (c == null) {
+            return R.error("用户不存在");
+        }
+        if (c.getEnabled() == false) {
+            return R.error("账号被冻结");
+        }
         return R.success("订单取消成功");
     }
 
     @Override
-    public R confirmGoods(Long id) {
-        redisTemplate.opsForHash().put("order:"+id,"statue",2);
+    public R arrivePlace(Integer rider_id, Long id,Double x,Double y) {
+
+
+        Integer rederId = (Integer)redisTemplate.opsForHash().get("order:" + id, "rederId");
+        double ox = (double)redisTemplate.opsForHash().get("order:" + id, "sLongitude");
+        double oy = (double)redisTemplate.opsForHash().get("order:" + id, "sLatitude");
+        Object o = redisTemplate.opsForHash().get("order:" + id, "statue");
+
+        //不是本骑手
+        if (rederId!=rider_id){ return R.error("非法操作");}
+        Integer integer = Integer.valueOf(o.toString());
+        //未到取件范围
+        double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
+        //System.out.println(distance2);
+        if (distance2>0.5d){return R.success("请到取件地点再点击收货");}
+        //禁止重复操作
+        if (integer != 2) {
+            return R.success("禁止重复操作");
+        }
+        redisTemplate.opsForHash().put("order:" + id, "statue", 3);
         LocalDateTime dateTime = LocalDateTime.now();
-        redisTemplate.opsForHash().put("order:"+id,"riderGetDate",dateTime);
+        redisTemplate.opsForHash().put("order:" + id, "riderGetDate", dateTime);
+        redisTemplate.opsForHash().put("rider:" + rider_id, id.toString(), 3);
+        return R.success("骑手到达目指定的地等候顾客到达");
+    }
+
+    @Override
+    public R confirmGoods(Integer rider_id, Long order_id) {
+        Object o = redisTemplate.opsForHash().get("order:" + order_id, "statue");
+        Integer integer = Integer.valueOf(o.toString());
+        if (integer != 3) {
+            return R.success("禁止重复操作");
+        }
+        redisTemplate.opsForHash().put("order:" + order_id, "statue", 4);
+        LocalDateTime dateTime = LocalDateTime.now();
+        redisTemplate.opsForHash().put("order:" + order_id, "riderSendDate", dateTime);
+        redisTemplate.opsForHash().put("rider:" + rider_id, order_id.toString(), 4);
         return R.success("成功取货");
+    }
+
+    @Override
+    public R deliveriedGoods(Integer rider_id, Long order_id,Double x,Double y) {
+        Integer rederId = (Integer)redisTemplate.opsForHash().get("order:" + order_id, "rederId");
+        double ox = (double)redisTemplate.opsForHash().get("order:" + order_id, "sLongitude");
+        double oy = (double)redisTemplate.opsForHash().get("order:" + order_id, "sLatitude");
+        Integer integer = (Integer)redisTemplate.opsForHash().get("order:" + order_id, "statue");
+        //不是本骑手
+        if (rederId!=rider_id){ return R.error("非法操作");}
+        //未到取件范围
+        double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
+        //System.out.println(distance2);
+        if (distance2>0.5d){return R.success("请到取件地点再点击收货");}
+        if (integer != 4) {
+            return R.success("禁止重复操作");
+        }
+        redisTemplate.opsForHash().put("order:" + order_id, "statue", 5);
+        LocalDateTime dateTime = LocalDateTime.now();
+        redisTemplate.opsForHash().put("order:" + order_id, "riderCompleteDate", dateTime);
+        redisTemplate.opsForHash().put("rider:" + rider_id, order_id.toString(), 5);
+        return R.success("物品已送达");
+    }
+
+    @Override
+    public R qurryAllOrdersStatus(Long orderId) {
+        //返回一天的订单状态
+        Map<String, Integer> entries = redisTemplate.opsForHash().entries("rider:" + orderId);
+        entries.forEach((k, v) -> System.out.println(k + "-" + v));
+        return R.success("返回一天内所以该骑手所以的订单状态", entries);
     }
 }

@@ -100,8 +100,36 @@ public interface IOrdersService extends IService<Orders> {
      * @return org.example.common.R
      * @author 聪懿
      * @date 2022/8/14 21:00
-     * @description 骑手确定取货
+     * @description 骑手到达指定地点正常取货
      **/
-    R confirmGoods(Long orderId);
+    R arrivePlace(Integer rider_id,Long orderId,Double x,Double y);
 
+    /**
+     * @param orderId
+     * @return org.example.common.R
+     * @author 聪懿
+     * @date 2022/8/15 21:22
+     * @description 返回一天内所以该骑手所以的订单状态
+     **/
+    R qurryAllOrdersStatus(Long orderId);
+
+    /**
+     * @param rider_id
+     * @param order_id
+     * @return org.example.common.R
+     * @author 聪懿
+     * @date 2022/8/16 19:26
+     * @description 骑手取货进行配送
+     **/
+    R confirmGoods(Integer rider_id, Long order_id);
+
+    /**
+     * @param rider_id
+     * @param order_id
+     * @return org.example.common.R
+     * @author 聪懿
+     * @date 2022/8/16 19:33
+     * @description 骑手已将物品送达指定目的地
+     **/
+    R deliveriedGoods(Integer rider_id, Long order_id,Double x,Double y);
 }

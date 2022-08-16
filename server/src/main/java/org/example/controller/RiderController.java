@@ -162,14 +162,29 @@ public class RiderController {
             return R.error("手机号码有误");
 
     }
-
-    @ApiOperation(value = "骑手端确认收货")
-    @PutMapping("/confirmGoods/{orderId}")
-    public R confirmGoods(@PathVariable Long orderId){
-        return iOrdersService.confirmGoods(orderId);
+    @ApiOperation(value = "全部订单状态查询")
+    @GetMapping("/Goods/qurryStatus/{rider_id}")
+    public R qurryAllOrdersStatus(@PathVariable Long rider_id){
+        return iOrdersService.qurryAllOrdersStatus(rider_id);
     }
 
+    @ApiOperation(value = "骑手到达目指定的地等候顾客到达")
+    @PutMapping("/arrivePlace/{rider_id}/{order_id}/{x}/{y}")
+    public R arrivePlace(@PathVariable  Integer rider_id, Long order_id,Double x,Double y){
+        return iOrdersService.arrivePlace(rider_id,order_id,x,y);
+    }
 
+    @ApiOperation(value = "骑手已取货正在快马加鞭配送")
+    @PutMapping("/confirmGoods/{rider_id}/{order_id}")
+    public R confirmGoods(@PathVariable  Integer rider_id, Long order_id){
+        return iOrdersService.confirmGoods(rider_id,order_id);
+    }
+
+    @ApiOperation(value = "骑手已将物品送达指定目的地")
+    @PutMapping("/deliveried/{rider_id}/{order_id}{x}/{y}")
+    public R deliveriedGoods(@PathVariable  Integer rider_id, Long order_id,Double x,Double y){
+        return iOrdersService.deliveriedGoods(rider_id,order_id, x, y);
+    }
 
 
 }
