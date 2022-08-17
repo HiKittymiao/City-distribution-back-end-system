@@ -18,4 +18,6 @@ public interface ICustomAddressService extends IService<Address> {
     R CustomSaveAddresss(Address address);
     //通过顾客id获取全部地址
     R getAllAddresss(Integer customerId);
+
+    R getOneAddresss(Integer customerId, Integer addressId);
 }

@@ -66,5 +66,11 @@ public class CustomAddressController {
         return iCustomAddressService.CustomdellAddresss(id);
     }
 
+    //@ApiOperation(value = "查询顾客id和地址id查询单个地址内容")
+    //@GetMapping("/{customerId}/{AddressId}")
+    //public R getOneAddresss( Integer customerId,Integer AddressId){
+    //    return iCustomAddressService.getOneAddresss(customerId,AddressId);
+    //}
+
 
 }

@@ -65,7 +65,7 @@ public class CustomController {
         return R.success("成功", custom);
     }
 
-    @ApiOperation(value = "根据id查询顾客信息")
+    @ApiOperation(value = "根据顾客id查询顾客信息")
     @GetMapping("/queryById")
     public R getCustomById(Integer id) {
 
@@ -111,6 +111,13 @@ public class CustomController {
     public R getOrdersStatue(@PathVariable Integer customId) {
         return iOrdersService.getOrders(customId);
     }
+
+    @ApiOperation(value = "根据订单id查询单个订单内容")
+    @GetMapping("/getOrders/{customId}/{orderId}")
+    public R getOneOrder(@PathVariable Integer customId,Long orderId) {
+        return iOrdersService.getOneOrder(customId,orderId);
+    }
+
 
 
 }

@@ -111,12 +111,16 @@ public class Orders implements Serializable {
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+
     @ApiModelProperty(value = "骑手接单时间")
     @TableField("rider_accept_date")
     private LocalDateTime riderAcceptDate;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+
     @ApiModelProperty(value = "骑手到达顾客地时间")
     @TableField("rider_get_date")
 
@@ -124,12 +128,14 @@ public class Orders implements Serializable {
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @ApiModelProperty(value = "骑手开始配送")
     @TableField("rider_send_date")
     private LocalDateTime riderSendDate;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @ApiModelProperty(value = "骑手送达时间")
     @TableField("rider_complete_date")
     private LocalDateTime riderCompleteDate;
@@ -146,6 +152,8 @@ public class Orders implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @ApiModelProperty(value = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+
     @TableField("update_time")
     private LocalDateTime updateTime;
 

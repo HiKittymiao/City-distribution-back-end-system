@@ -131,6 +131,22 @@ public interface IOrdersService extends IService<Orders> {
      **/
     R deliveriedGoods(Integer rider_id, Long order_id,Double x,Double y);
 
-
+    /**
+     * @param customId
+     * @return org.example.common.R
+     * @author 聪懿
+     * @date 2022/8/17 10:38
+     * @description 顾客端根据顾客id获取全部订单内容
+     **/
     R getOrders(Integer customId);
+
+    /**
+     * @param customId
+     * @param orderId
+     * @return org.example.common.R
+     * @author 聪懿
+     * @date 2022/8/17 10:39
+     * @description 顾客端根据顾客id获取单个订单内容
+     **/
+    R getOneOrder(Integer customId, Long orderId);
 }

@@ -22,7 +22,6 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
         if (id==null) {
             R.error("id不能为空");
         }
-        QueryWrapper<Object> UpdateWrapper = new QueryWrapper<>();
         Address address = new Address();
         address.setDelFlag(true);
         address.setId(id);
@@ -50,5 +49,14 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
         queryWrapper.eq("customer_id",customerId).eq("del_flag",false);
         return R.success("全部地址查询成功",this.list(queryWrapper));
 
+    }
+
+    @Override
+    public R getOneAddresss(Integer customerId, Integer addressId) {
+        QueryWrapper<Address> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("customer_id",customerId).eq("id",addressId);
+        Address one = this.getOne(queryWrapper);
+        if(one==null){return R.success("地址不存在");}
+        return R.success("查询成功",one);
     }
 }

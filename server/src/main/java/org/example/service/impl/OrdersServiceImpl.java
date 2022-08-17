@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -305,5 +306,16 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         List<Orders> list = this.list(queryWrapper);
         if (list==null){R.success("未查询到订单信息");}
         return R.success("查询成功",list);
+    }
+
+    @Override
+    public R getOneOrder(Integer customId, Long orderId) {
+        Map map = redisTemplate.opsForHash().entries("order:" + orderId);
+        if(!map.isEmpty()){
+            return R.success("成功", (Orders)BeanUtil.fillBeanWithMap (map,new Orders(), false));
+        }
+        Orders orders = this.getById(orderId);
+        if (orders==null){return R.success("没有该订单内容");}
+        return R.success("成功",orders);
     }
 }
