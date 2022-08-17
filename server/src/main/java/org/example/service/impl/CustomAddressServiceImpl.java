@@ -43,7 +43,7 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
                                     .eq(Address::getSenderAddress,address.getSenderAddress())
                                     .eq(Address::getAddresseeName,address.getAddresseeName())
                                     .eq(Address::getAddresseePhone,address.getAddresseePhone())
-                                    .eq(Address::getRAddress,address.getRAddress()));
+                                    .eq(Address::getAddresseeAddress,address.getAddresseeAddress()));
 
 
 

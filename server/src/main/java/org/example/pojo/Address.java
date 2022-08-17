@@ -67,7 +67,7 @@ public class Address implements Serializable {
 
     @ApiModelProperty(value = "接收者目的地址")
     @TableField("r_address")
-    private String rAddress;
+    private String addresseeAddress;
 
     @ApiModelProperty(value = "接收者目的地经度")
     @TableField("r_longitude")
