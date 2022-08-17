@@ -20,10 +20,8 @@ import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -79,6 +77,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         LocalDateTime dateTime = LocalDateTime.now();
         order.setCreateTime(dateTime);
         order.setOrderType(o.getOrderType());
+        order.setGoodsType(o.getGoodsType());
         order.setEstimatedTime(dateTime.plusMinutes(30));
         redisTemplate.opsForValue().set("no_pay:" + id, order, 30, TimeUnit.MINUTES);
         save(order);
@@ -191,7 +190,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         if (!iRiderService.isRider(1)) {
             return R.error("骑手不存在");
         }
-        if (redisTemplate.opsForHash().get("order:" + orderId, "rederId") != null) {
+        Integer o = (Integer) ops.get("order:" + orderId, "rederId");
+        if (o != null) {
+            if (o == rideId) {
+                return R.success("重复抢单");
+            }
             return R.success("抢单失败");
         }
         redisTemplate.execute(new SessionCallback() {
@@ -229,21 +232,25 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R arrivePlace(Integer rider_id, Long id,Double x,Double y) {
+    public R arrivePlace(Integer rider_id, String id, Double x, Double y) {
 
 
-        Integer rederId = (Integer)redisTemplate.opsForHash().get("order:" + id, "rederId");
-        double ox = (double)redisTemplate.opsForHash().get("order:" + id, "sLongitude");
-        double oy = (double)redisTemplate.opsForHash().get("order:" + id, "sLatitude");
+        Integer rederId = (Integer) redisTemplate.opsForHash().get("order:" + id, "rederId");
+        double ox = (double) redisTemplate.opsForHash().get("order:" + id, "sLongitude");
+        double oy = (double) redisTemplate.opsForHash().get("order:" + id, "sLatitude");
         Object o = redisTemplate.opsForHash().get("order:" + id, "statue");
 
         //不是本骑手
-        if (rederId!=rider_id){ return R.error("非法操作");}
+        if (rederId != rider_id) {
+            return R.error("非法操作");
+        }
         Integer integer = Integer.valueOf(o.toString());
         //未到取件范围
         double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
         //System.out.println(distance2);
-        if (distance2>0.5d){return R.success("请到取件地点再点击收货");}
+        if (distance2 > 0.5d) {
+            return R.success("请到取件地点再点击收货");
+        }
         //禁止重复操作
         if (integer != 2) {
             return R.success("禁止重复操作");
@@ -256,7 +263,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R confirmGoods(Integer rider_id, Long order_id) {
+    public R confirmGoods(Integer rider_id, String order_id) {
         Object o = redisTemplate.opsForHash().get("order:" + order_id, "statue");
         Integer integer = Integer.valueOf(o.toString());
         if (integer != 3) {
@@ -270,17 +277,21 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R deliveriedGoods(Integer rider_id, Long order_id,Double x,Double y) {
-        Integer rederId = (Integer)redisTemplate.opsForHash().get("order:" + order_id, "rederId");
-        double ox = (double)redisTemplate.opsForHash().get("order:" + order_id, "rLongitude");
-        double oy = (double)redisTemplate.opsForHash().get("order:" + order_id, "rLatitude");
-        Integer integer = (Integer)redisTemplate.opsForHash().get("order:" + order_id, "statue");
+    public R deliveriedGoods(Integer rider_id, String order_id, Double x, Double y) {
+        Integer rederId = (Integer) redisTemplate.opsForHash().get("order:" + order_id, "rederId");
+        double ox = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLongitude");
+        double oy = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLatitude");
+        Integer integer = (Integer) redisTemplate.opsForHash().get("order:" + order_id, "statue");
         //不是本骑手
-        if (rederId!=rider_id){ return R.error("非法操作");}
+        if (rederId != rider_id) {
+            return R.error("非法操作");
+        }
         //未到取件范围
         double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
         //System.out.println(distance2);
-        if (distance2>0.5d){return R.success("请到目的地再点击送达");}
+        if (distance2 > 0.5d) {
+            return R.success("请到目的地再点击送达");
+        }
         if (integer != 4) {
             return R.success("禁止重复操作");
         }
@@ -292,7 +303,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R qurryAllOrdersStatus(Long orderId) {
+    public R qurryAllOrdersStatus(Integer orderId) {
         //返回一天的订单状态
         Map<String, Integer> entries = redisTemplate.opsForHash().entries("rider:" + orderId);
         entries.forEach((k, v) -> System.out.println(k + "-" + v));
@@ -302,20 +313,24 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     public R getOrders(Integer customId) {
         QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("customer_id",customId);
+        queryWrapper.eq("customer_id", customId);
         List<Orders> list = this.list(queryWrapper);
-        if (list==null){R.success("未查询到订单信息");}
-        return R.success("查询成功",list);
+        if (list == null) {
+            R.success("未查询到订单信息");
+        }
+        return R.success("查询成功", list);
     }
 
     @Override
     public R getOneOrder(Integer customId, Long orderId) {
         Map map = redisTemplate.opsForHash().entries("order:" + orderId);
-        if(!map.isEmpty()){
-            return R.success("成功", (Orders)BeanUtil.fillBeanWithMap (map,new Orders(), false));
+        if (!map.isEmpty()) {
+            return R.success("成功", (Orders) BeanUtil.fillBeanWithMap(map, new Orders(), false));
         }
         Orders orders = this.getById(orderId);
-        if (orders==null){return R.success("没有该订单内容");}
-        return R.success("成功",orders);
+        if (orders == null) {
+            return R.success("没有该订单内容");
+        }
+        return R.success("成功", orders);
     }
 }

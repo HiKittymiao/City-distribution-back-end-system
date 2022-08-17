@@ -70,7 +70,7 @@ public class OrdersController {
 
     @PostMapping("/payOrder/{OrderId}/{customer_id}")
     @ApiOperation(value = "付款")
-    public R PayOrder(@PathVariable String OrderId, String customer_id) {
+    public R PayOrder(@PathVariable String OrderId,@PathVariable String customer_id) {
         Boolean aBoolean = iOrdersService.PayOrder(Long.valueOf(OrderId), Integer.valueOf(customer_id));
         if (!aBoolean) {
             return R.error("订单不存在或者顾客被冻结或余额不足");
@@ -80,7 +80,7 @@ public class OrdersController {
 
     @PostMapping("/cancelOrder/{orderId}/{customer_id}")
     @ApiOperation(value = "取消订单")
-    public R cancelOrder(@PathVariable String orderId, String customer_id) {
+    public R cancelOrder(@PathVariable String orderId,@PathVariable String customer_id) {
         if (orderId == "" || customer_id == "") {
             return R.error("订单密码格式错误");
         }

@@ -178,6 +178,10 @@ public class Orders implements Serializable {
     @TableField("order_type")
     private String orderType;
 
+    @ApiModelProperty(value = "物品类型")
+    @TableField("goods_type")
+    private String goodsType;
+
     @ApiModelProperty(value = "商品重量 单位公斤")
     @TableField("goods_weight")
     private Integer goodsWeight;

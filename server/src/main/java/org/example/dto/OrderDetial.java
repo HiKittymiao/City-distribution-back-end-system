@@ -57,6 +57,9 @@ public class OrderDetial {
     @ApiModelProperty(value = "订单类型，帮我送、帮我取、帮我买",required = true)
     private String orderType;
 
+    @ApiModelProperty(value = "物品类型")
+    private String goodsType;
+
     @ApiModelProperty(value = "商品重量 单位公斤",required = true)
     private Integer goodsWeight;
 

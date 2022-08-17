@@ -36,7 +36,7 @@ public class CustomAddressController {
      **/
     @ApiOperation(value = "查询所有顾客地址")
     @GetMapping("/")
-    public R getAllAddresss( Integer customerId){
+    public R getAllAddresss(@RequestParam("customerId") Integer customerId){
         return iCustomAddressService.getAllAddresss(customerId);
     }
 
@@ -62,7 +62,7 @@ public class CustomAddressController {
      **/
     @ApiOperation(value = "删除用户地址")
     @DeleteMapping("/id")
-    public R deletAddresss( Integer id){
+    public R deletAddresss(@RequestParam("addressId") Integer id){
         return iCustomAddressService.CustomdellAddresss(id);
     }
 

@@ -67,7 +67,7 @@ public class CustomController {
 
     @ApiOperation(value = "根据顾客id查询顾客信息")
     @GetMapping("/queryById")
-    public R getCustomById(Integer id) {
+    public R getCustomById(@RequestParam("customerId")Integer id) {
 
         Custom byId = iCustomService.getById(id);
         if (byId != null) {
@@ -107,15 +107,15 @@ public class CustomController {
     }
 
     @ApiOperation(value = "查询用户订单")
-    @GetMapping("/getOrders/{customId}")
-    public R getOrdersStatue(@PathVariable Integer customId) {
-        return iOrdersService.getOrders(customId);
+    @GetMapping("/getOrders/{customerId}")
+    public R getOrdersStatue(@PathVariable Integer customerId) {
+        return iOrdersService.getOrders(customerId);
     }
 
     @ApiOperation(value = "根据订单id查询单个订单内容")
-    @GetMapping("/getOrders/{customId}/{orderId}")
-    public R getOneOrder(@PathVariable Integer customId,Long orderId) {
-        return iOrdersService.getOneOrder(customId,orderId);
+    @GetMapping("/getOrders/{customerId}/{orderId}")
+    public R getOneOrder(@PathVariable Integer customerId,@PathVariable Long orderId) {
+        return iOrdersService.getOneOrder(customerId,orderId);
     }
 
 
