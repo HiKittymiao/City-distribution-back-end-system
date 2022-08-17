@@ -1,5 +1,6 @@
 package org.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.common.R;
@@ -34,10 +35,27 @@ public class CustomAddressServiceImpl extends ServiceImpl<AddressMapper, Address
     @Override
     public R CustomSaveAddresss(Address address) {
         address.setDelFlag(false);
-        if (save(address)!=true){
-            return R.error("添加失败");
+
+        Address one = this.getOne(new LambdaQueryWrapper<Address>()
+                                    .eq(Address::getCustomerId,address.getCustomerId())
+                                    .eq(Address::getSenderName,address.getSenderName())
+                                    .eq(Address::getSenderPhone,address.getSenderPhone())
+                                    .eq(Address::getSenderAddress,address.getSenderAddress())
+                                    .eq(Address::getAddresseeName,address.getAddresseeName())
+                                    .eq(Address::getAddresseePhone,address.getAddresseePhone())
+                                    .eq(Address::getRAddress,address.getRAddress()));
+
+
+
+        if (one !=null){
+           return R.error("此地址已经存在");
         }
-        return R.success("添加成功");
+
+        boolean save = this.save(address);
+        if (save){
+            return R.success("添加成功");
+        }
+        return R.error("添加失败");
     }
 
     @Override

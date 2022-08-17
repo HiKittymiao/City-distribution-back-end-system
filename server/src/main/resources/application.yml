@@ -93,7 +93,7 @@ mybatis-plus:
 
 logging:
   level:
-    com.ikun.mapper: debug
+    org.example.mapper: debug
 
 jwt:
   # Jwt存储的请求头
