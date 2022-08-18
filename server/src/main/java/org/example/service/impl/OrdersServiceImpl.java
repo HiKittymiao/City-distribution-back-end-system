@@ -2,6 +2,8 @@ package org.example.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.common.R;
 import org.example.dto.OrderDetial;
@@ -46,6 +48,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     private IRiderService iRiderService;
     @Resource
     private RedisBeanMapUtil util;
+
+    @Autowired
+    private IOrdersService ordersService;
 
 
     @Override
@@ -311,14 +316,18 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R getOrders(Integer customId) {
+    public R getOrders(Integer customId,Integer pageNum,Integer pageSize) {
         QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("customer_id", customId);
-        List<Orders> list = this.list(queryWrapper);
-        if (list == null) {
+
+        Page<Orders> page = new Page<Orders>(pageNum, pageSize);
+        IPage<Orders> pageList =  ordersService.page(page,queryWrapper);
+
+
+        if (pageList == null) {
             R.success("未查询到订单信息");
         }
-        return R.success("查询成功", list);
+        return R.success("查询成功", pageList.getRecords());
     }
 
     @Override

@@ -138,7 +138,7 @@ public interface IOrdersService extends IService<Orders> {
      * @date 2022/8/17 10:38
      * @description 顾客端根据顾客id获取全部订单内容
      **/
-    R getOrders(Integer customId);
+    R getOrders(Integer customId,Integer pageNum,Integer pageSize);
 
     /**
      * @param customId

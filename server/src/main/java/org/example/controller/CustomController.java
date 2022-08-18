@@ -107,9 +107,11 @@ public class CustomController {
     }
 
     @ApiOperation(value = "查询用户订单")
-    @GetMapping("/getOrders/{customerId}")
-    public R getOrdersStatue(@PathVariable Integer customerId) {
-        return iOrdersService.getOrders(customerId);
+    @GetMapping("/getOrders")
+    public R getOrdersStatue(@RequestParam("customerId") Integer customerId,
+                               @RequestParam(name="pagenum",defaultValue = "1") Integer pagenum,
+                                @RequestParam(name = "pagesize",defaultValue = "10")Integer pagesize) {
+        return iOrdersService.getOrders(customerId,pagenum,pagesize);
     }
 
     @ApiOperation(value = "根据订单id查询单个订单内容")
