@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
 import org.example.common.R;
+import org.example.common.RespPageBean;
 import org.example.pojo.Custom;
 import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
@@ -109,8 +110,8 @@ public class CustomController {
     @ApiOperation(value = "查询用户订单")
     @GetMapping("/getOrders")
     public R getOrdersStatue(@RequestParam("customerId") Integer customerId,
-                               @RequestParam(name="pagenum",defaultValue = "1") Integer pagenum,
-                                @RequestParam(name = "pagesize",defaultValue = "10")Integer pagesize) {
+                                        @RequestParam(name="pagenum",defaultValue = "1") Integer pagenum,
+                                        @RequestParam(name = "pagesize",defaultValue = "10")Integer pagesize) {
         return iOrdersService.getOrders(customerId,pagenum,pagesize);
     }
 

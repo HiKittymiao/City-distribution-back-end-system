@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.common.R;
+import org.example.common.RespPageBean;
 import org.example.dto.OrderDetial;
 import org.example.mapper.OrdersMapper;
 import org.example.pojo.Custom;
@@ -316,18 +317,21 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R getOrders(Integer customId,Integer pageNum,Integer pageSize) {
+    public R getOrders(Integer customId, Integer pageNum, Integer pageSize) {
+        RespPageBean respPageBean = new RespPageBean();
         QueryWrapper<Orders> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("customer_id", customId);
+        queryWrapper.orderByDesc("id");
 
         Page<Orders> page = new Page<Orders>(pageNum, pageSize);
         IPage<Orders> pageList =  ordersService.page(page,queryWrapper);
-
+        respPageBean.setTotal(pageList.getTotal());
+        respPageBean.setAllOrderList(pageList.getRecords());
 
         if (pageList == null) {
-            R.success("未查询到订单信息");
+            return R.error("未查询到订单");
         }
-        return R.success("查询成功", pageList.getRecords());
+        return R.success("查询成功",respPageBean);
     }
 
     @Override

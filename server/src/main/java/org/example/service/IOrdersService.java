@@ -2,6 +2,7 @@ package org.example.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.common.R;
+import org.example.common.RespPageBean;
 import org.example.dto.OrderDetial;
 import org.example.pojo.Orders;
 import org.example.vo.PriceAndDistance;
@@ -138,7 +139,7 @@ public interface IOrdersService extends IService<Orders> {
      * @date 2022/8/17 10:38
      * @description 顾客端根据顾客id获取全部订单内容
      **/
-    R getOrders(Integer customId,Integer pageNum,Integer pageSize);
+    R getOrders(Integer customId, Integer pageNum, Integer pageSize);
 
     /**
      * @param customId
