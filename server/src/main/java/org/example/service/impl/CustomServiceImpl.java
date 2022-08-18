@@ -92,7 +92,7 @@ public class CustomServiceImpl extends ServiceImpl<CustomMapper, Custom> impleme
         Custom custom = getOne(qw);
         if (custom== null) {
             log.info("用户不存");
-        }else if(custom.getEnabled()){
+        }else if(!custom.getEnabled()){
             log.info("用户被禁用");
         }
         return custom.getMoney();

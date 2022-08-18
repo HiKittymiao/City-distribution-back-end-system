@@ -92,7 +92,7 @@ public interface IOrdersService extends IService<Orders> {
      * @date 2022/8/13 19:32
      * @description 未付款取消订单
      **/
-    R cancelOrder(Long id, String customer_id);
+    R cancelOrder(String oderId, String customer_id);
 
     /**
      * @param 订单号

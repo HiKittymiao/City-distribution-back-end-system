@@ -84,7 +84,7 @@ public class OrdersController {
         if (orderId == "" || customer_id == "") {
             return R.error("订单密码格式错误");
         }
-        return iOrdersService.cancelOrder(Long.valueOf(orderId), customer_id);
+        return iOrdersService.cancelOrder(orderId, customer_id);
     }
 
 
