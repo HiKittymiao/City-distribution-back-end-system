@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -360,11 +361,25 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R qurryAllOrdersStatus(Integer orderId) {
+    public R qurryAllOrdersStatus(Integer orderId,Integer status) {
+        ArrayList<Orders> orders = new ArrayList<>();
+        if(status==null){
+            Set keys = redisTemplate.opsForHash().keys("rider:" + orderId);
+            Iterator<Long> it = keys.iterator();
+            while (it.hasNext()) {
+                //对myobject进行操作
+                orders.add(BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:"+it.next()),new Orders(),false));
+            }
+            return R.success("返回一天内所以该骑手所以的订单状态",orders);
+        }
         //返回一天的订单状态
         Map<String, Integer> entries = redisTemplate.opsForHash().entries("rider:" + orderId);
-        entries.forEach((k, v) -> System.out.println(k + "-" + v));
-        return R.success("返回一天内所以该骑手所以的订单状态", entries);
+        entries.entrySet().removeIf(m->m.getValue()!=status);
+        List<String> collect = entries.keySet().stream().collect(Collectors.toList());
+        collect.forEach(k->{orders.add(BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:"+k),new Orders(),false));});
+        //System.out.println(orders);
+        //entries.forEach((k, v) -> System.out.println(k + "-" + v));
+        return R.success("返回一天内所以该骑手所以的订单状态", orders);
     }
 
     @Override

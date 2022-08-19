@@ -110,7 +110,7 @@ public interface IOrdersService extends IService<Orders> {
      * @date 2022/8/15 21:22
      * @description 返回一天内所以该骑手所以的订单状态
      **/
-    R qurryAllOrdersStatus(Integer orderId);
+    R qurryAllOrdersStatus(Integer orderId,Integer status);
 
     /**
      * @param rider_id

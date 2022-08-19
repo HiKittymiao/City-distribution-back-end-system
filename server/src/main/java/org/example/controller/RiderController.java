@@ -161,9 +161,10 @@ public class RiderController {
 
     }
     @ApiOperation(value = "全部订单状态查询")
-    @GetMapping("/Goods/qurryStatus/{rider_id}")
-    public R qurryAllOrdersStatus(@RequestParam("riderId") Integer rider_id){
-        return iOrdersService.qurryAllOrdersStatus(rider_id);
+    @GetMapping("/Goods/qurryStatus/{rider_id}/{status}")
+    public R qurryAllOrdersStatus(@RequestParam("riderId") Integer rider_id,
+                                  Integer status){
+        return iOrdersService.qurryAllOrdersStatus(rider_id,status);
     }
 
     @ApiOperation(value = "骑手到达目指定的地等候顾客到达")
@@ -185,6 +186,9 @@ public class RiderController {
                              @PathVariable Double x,@PathVariable Double y){
         return iOrdersService.deliveriedGoods(rider_id,order_id, x, y);
     }
+
+
+
 
 
 }
