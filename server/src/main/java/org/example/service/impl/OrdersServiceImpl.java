@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.common.R;
 import org.example.common.RespPageBean;
+import org.example.dto.OrderConfirm;
 import org.example.dto.OrderDetial;
 import org.example.mapper.OrdersMapper;
 import org.example.pojo.Custom;
@@ -16,17 +17,13 @@ import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
 import org.example.utlis.DistanceUtil;
 import org.example.utlis.OrderIidUtil;
-import org.example.utlis.RedisBeanMapUtil;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
 
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -92,7 +89,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         order.setGoodsType(o.getGoodsType());
         order.setEstimatedTime(dateTime.plusMinutes(30));
         redisTemplate.opsForValue().set("no_pay:" + id, order, 30, TimeUnit.MINUTES);
-        //save(order);
+        save(order);
         return id;
     }
 
@@ -411,5 +408,28 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             return R.success("没有该订单内容");
         }
         return R.success("成功", orders);
+    }
+
+    @Override
+    public R confirmGoods(OrderConfirm orderConfirm) {
+        Orders orders = new Orders();
+        HashOperations ops = redisTemplate.opsForHash();
+        Map entries = ops.entries("order:" + orderConfirm.getOrderId());
+        //entries.forEach((k,v)-> System.out.println(k+"     "+v));
+        if (!entries.isEmpty()){
+            orders = (Orders) BeanUtil.fillBeanWithMap(entries, new Orders(), true);
+            //System.out.println(orders);
+            orders.setUserEvaluate(orderConfirm.getUserEvaluate());
+            orders.setUserScore(orderConfirm.getUserScore());
+            orders.setStatue(6);
+            updateById(orders);
+            ops.delete("order:" + orderConfirm.getOrderId());
+            return R.success("收货成功订单完成");
+        }
+        orders.setUserEvaluate(orderConfirm.getUserEvaluate());
+        orders.setUserScore(orderConfirm.getUserScore());
+        orders.setStatue(6);
+        updateById(orders);
+        return R.success("收货成功订单完成");
     }
 }

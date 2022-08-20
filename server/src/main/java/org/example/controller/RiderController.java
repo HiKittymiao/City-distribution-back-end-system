@@ -162,8 +162,8 @@ public class RiderController {
     }
     @ApiOperation(value = "全部订单状态查询")
     @GetMapping("/Goods/qurryStatus/{rider_id}/{status}")
-    public R qurryAllOrdersStatus(@RequestParam("riderId") Integer rider_id,
-                                  Integer status){
+    public R qurryAllOrdersStatus(@PathVariable("rider_id") Integer rider_id,
+                                  @PathVariable("status")Integer status){
         return iOrdersService.qurryAllOrdersStatus(rider_id,status);
     }
 

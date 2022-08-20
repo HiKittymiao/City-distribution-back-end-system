@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
 import org.example.common.R;
 import org.example.common.RespPageBean;
+import org.example.dto.OrderConfirm;
 import org.example.pojo.Custom;
 import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
@@ -120,6 +121,12 @@ public class CustomController {
     public R getOneOrder(@PathVariable Integer customerId,@PathVariable Long orderId) {
         return iOrdersService.getOneOrder(customerId,orderId);
     }
+    @ApiOperation(value = "顾客确认收货")
+    @PostMapping("/confirmGoods")
+    public R confirmGoods(@RequestBody OrderConfirm orderConfirm) {
+        return iOrdersService.confirmGoods(orderConfirm);
+    }
+
 
 
 

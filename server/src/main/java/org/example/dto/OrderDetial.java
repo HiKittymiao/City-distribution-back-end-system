@@ -43,10 +43,10 @@ public class OrderDetial {
 
 
     @ApiModelProperty(value = "起始经",required = true)
-    private double sLongitude;
+    private Double sLongitude;
 
     @ApiModelProperty(value = "起始纬",required = true)
-    private double sLatitude;
+    private Double sLatitude;
 
     @ApiModelProperty(value = "终点经纬",required = true)
     private Double rLongitude;

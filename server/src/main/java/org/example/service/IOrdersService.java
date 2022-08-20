@@ -3,6 +3,7 @@ package org.example.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.common.R;
 import org.example.common.RespPageBean;
+import org.example.dto.OrderConfirm;
 import org.example.dto.OrderDetial;
 import org.example.pojo.Orders;
 import org.example.vo.PriceAndDistance;
@@ -150,4 +151,13 @@ public interface IOrdersService extends IService<Orders> {
      * @description 顾客端根据顾客id获取单个订单内容
      **/
     R getOneOrder(Integer customId, Long orderId);
+
+    /**
+     * @param orderConfirm
+     * @return org.example.common.R
+     * @author 聪懿
+     * @date 2022/8/20 11:45
+     * @description 顾客确认收货
+     **/
+    R confirmGoods(OrderConfirm orderConfirm);
 }
