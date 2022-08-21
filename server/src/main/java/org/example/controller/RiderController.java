@@ -170,7 +170,7 @@ public class RiderController {
     @ApiOperation(value = "骑手到达目指定的地等候顾客到达")
     @PutMapping("/arrivePlace/{rider_id}/{order_id}/{x}/{y}")
     public R arrivePlace(@PathVariable  Integer rider_id,@PathVariable String order_id,
-                         @PathVariable Double x,@PathVariable Double y){
+                         @PathVariable(required =false) Double x,@PathVariable(required =false) Double y){
         return iOrdersService.arrivePlace(rider_id,order_id,x,y);
     }
 
@@ -181,9 +181,9 @@ public class RiderController {
     }
 
     @ApiOperation(value = "骑手已将物品送达指定目的地")
-    @PutMapping("/deliveried/{rider_id}/{order_id}{x}/{y}")
+    @PutMapping("/deliveried/{rider_id}/{order_id}/{x}/{y}")
     public R deliveriedGoods(@PathVariable  Integer rider_id,@PathVariable String order_id,
-                             @PathVariable Double x,@PathVariable Double y){
+                             @PathVariable(required =false) Double x,@PathVariable(required =false) Double y){
         return iOrdersService.deliveriedGoods(rider_id,order_id, x, y);
     }
 

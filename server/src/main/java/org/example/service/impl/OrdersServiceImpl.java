@@ -19,6 +19,7 @@ import org.example.utlis.DistanceUtil;
 import org.example.utlis.OrderIidUtil;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -158,7 +159,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Boolean aBoolean = iCustomService.ruduceMoney(customer_id, o.getPrice());
         if (aBoolean) {
             //删除未付款订单
-            //redisTemplate.delete("no_pay:" + orderId);
+            redisTemplate.delete("no_pay:" + orderId);
             //订单状态设置为1付款成功还没骑手接单
             o.setStatue(1);
             LocalDateTime dateTime = LocalDateTime.now();
@@ -258,18 +259,17 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         }
         Orders o = (Orders) redisTemplate.opsForValue().get("no_pay:" + orderId);
         Map entries = redisTemplate.opsForHash().entries("order:" + orderId);
-        if (o!=null) {
-            if(o.getStatue() == 0&&orderId.equals(o.getId().toString())){
+        if (o != null) {
+            if (o.getStatue() == 0 && orderId.equals(o.getId().toString())) {
                 o.setStatue(8);
                 updateById(o);
                 redisTemplate.delete("no_pay:" + orderId);
                 return R.success("订单取消成功");
             }
             return R.success("非法操作");
-        }
-        else if (!entries.isEmpty()) {
+        } else if (!entries.isEmpty()) {
             Orders order = (Orders) BeanUtil.fillBeanWithMap(entries, new Orders(), true);
-            if (!order.getId().equals(orderId)){
+            if (!order.getId().equals(orderId)) {
                 return R.success("非法操作");
             }
             Integer statue = order.getStatue();
@@ -292,8 +292,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         return R.success("禁止取消");
 
     }
-
-
 
 
     @Override
@@ -345,19 +343,22 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     public R deliveriedGoods(Integer rider_id, String order_id, Double x, Double y) {
         Integer rederId = (Integer) redisTemplate.opsForHash().get("order:" + order_id, "rederId");
-        double ox = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLongitude");
-        double oy = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLatitude");
+        //double ox = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLongitude");
+        //double oy = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLatitude");
         Integer integer = (Integer) redisTemplate.opsForHash().get("order:" + order_id, "statue");
         //不是本骑手
         if (rederId != rider_id) {
             return R.error("非法操作");
         }
+
         //未到取件范围
-        double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
+        //double distance2 = DistanceUtil.getDistance2(ox, oy, x, y);
         //System.out.println(distance2);
-        if (distance2 > 0.5d) {
-            return R.success("请到目的地再点击送达");
-        }
+        //if (distance2 > 0.5d) {
+        //    return R.success("请到目的地再点击送达");
+        //}
+
+
         if (integer != 4) {
             return R.success("禁止重复操作");
         }
@@ -412,15 +413,34 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public R getOneOrder(Integer customId, Long orderId) {
+        Custom c = (Custom) iCustomService.getById(customId);
+        if (c == null) {
+            return R.error("用户不存在");
+        }
+        if (c.getEnabled() == false) {
+            return R.error("账号被冻结");
+        }
+        Orders o = (Orders) redisTemplate.opsForValue().get("no_pay:" + orderId);
+        if (o != null) {
+            if (orderId.longValue()==o.getId().longValue() && o.getCustomerId() == customId) {
+                return R.success("查询成功", o);
+            }
+            return R.success("非法操作订单或顾客id不存在");
+        }
         Map map = redisTemplate.opsForHash().entries("order:" + orderId);
         if (!map.isEmpty()) {
-            return R.success("成功", (Orders) BeanUtil.fillBeanWithMap(map, new Orders(), false));
+            Orders orders = BeanUtil.fillBeanWithMap(map, new Orders(), false);
+            if (orders.getId().longValue()==orderId.longValue() && orders.getCustomerId() == customId) {
+                return R.success("成功", orders);
+            }
+            return R.success("非法操作订单或顾客id不存在");
         }
         Orders orders = this.getById(orderId);
-        if (orders == null) {
-            return R.success("没有该订单内容");
+        if (orders != null) {
+            return R.success("成功", orders);
         }
-        return R.success("成功", orders);
+        return R.success("没有该订单内容");
+
     }
 
     @Override
@@ -428,6 +448,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Orders orders = new Orders();
         HashOperations ops = redisTemplate.opsForHash();
         Map entries = ops.entries("order:" + orderConfirm.getOrderId());
+        orders = BeanUtil.fillBeanWithMap(entries,new Orders(),false);
         //entries.forEach((k,v)-> System.out.println(k+"     "+v));
         if (!entries.isEmpty()) {
             orders = (Orders) BeanUtil.fillBeanWithMap(entries, new Orders(), false);
@@ -436,14 +457,15 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             orders.setUserScore(orderConfirm.getUserScore());
             orders.setStatue(6);
             updateById(orders);
-            ops.delete("order:" + orderConfirm.getOrderId());
+            redisTemplate.delete("order:" + orderConfirm.getOrderId());
             return R.success("收货成功订单完成");
         }
-        orders.setUserEvaluate(orderConfirm.getUserEvaluate());
-        orders.setUserScore(orderConfirm.getUserScore());
-        orders.setStatue(6);
+        Orders id = getById(orderConfirm.getOrderId());
+        id.setUserEvaluate(orderConfirm.getUserEvaluate());
+        id.setUserScore(orderConfirm.getUserScore());
+        id.setStatue(6);
 
-        boolean b = updateById(orders);
+        boolean b = updateById(id);
         if (b) {
             return R.success("收货成功订单完成");
         }
