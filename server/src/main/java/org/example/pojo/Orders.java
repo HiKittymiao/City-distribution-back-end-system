@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ import java.time.LocalDateTime;
  * @since 2022-08-08
  */
 @Data
-//@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 //@Accessors(chain = true)
 @TableName("web_orders")
 @ApiModel(value="Orders对象", description="订单表")
