@@ -207,7 +207,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Set kill_order = redisTemplate.opsForSet().members("kill_order");
         ArrayList<Orders> orders = new ArrayList<>();
         kill_order.forEach((i) -> {
-            orders.add((Orders) redisTemplate.opsForValue().get("no_pay:" + i));
+            orders.add((Orders)BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:" + i),new Orders(),false));
         });
         return orders;
     }
