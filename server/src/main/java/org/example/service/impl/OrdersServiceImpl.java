@@ -19,7 +19,6 @@ import org.example.utlis.DistanceUtil;
 import org.example.utlis.OrderIidUtil;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -370,10 +369,21 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public R qurryAllOrdersStatus(Integer orderId, Integer status) {
+    public R qurryAllOrdersStatus(Integer riderId, Integer status, String order_id) {
+        if(!order_id.isEmpty()){
+            Map map = redisTemplate.opsForHash().entries("order:" + order_id);
+            if (!map.isEmpty()) {
+                Orders orders = BeanUtil.fillBeanWithMap(map, new Orders(), false);
+                if (orders.getId().toString().equals(order_id) && orders.getRederId() == riderId) {
+                    return R.success("成功", orders);
+                }
+                return R.success("非法操作订");
+            }
+            return R.success("订单不存在");
+        }
         ArrayList<Orders> orders = new ArrayList<>();
         if (status == null) {
-            Set keys = redisTemplate.opsForHash().keys("rider:" + orderId);
+            Set keys = redisTemplate.opsForHash().keys("rider:" + riderId);
             Iterator<Long> it = keys.iterator();
             while (it.hasNext()) {
                 //对myobject进行操作
@@ -382,7 +392,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             return R.success("返回一天内所以该骑手所以的订单状态", orders);
         }
         //返回一天的订单状态
-        Map<String, Integer> entries = redisTemplate.opsForHash().entries("rider:" + orderId);
+        Map<String, Integer> entries = redisTemplate.opsForHash().entries("rider:" + riderId);
         entries.entrySet().removeIf(m -> m.getValue() != status);
         List<String> collect = entries.keySet().stream().collect(Collectors.toList());
         collect.forEach(k -> {

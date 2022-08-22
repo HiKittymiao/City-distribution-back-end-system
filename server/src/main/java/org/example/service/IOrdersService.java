@@ -2,7 +2,6 @@ package org.example.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.common.R;
-import org.example.common.RespPageBean;
 import org.example.dto.OrderConfirm;
 import org.example.dto.OrderDetial;
 import org.example.pojo.Orders;
@@ -106,12 +105,13 @@ public interface IOrdersService extends IService<Orders> {
 
     /**
      * @param orderId
+     * @param order_id
      * @return org.example.common.R
      * @author 聪懿
      * @date 2022/8/15 21:22
      * @description 返回一天内所以该骑手所以的订单状态
      **/
-    R qurryAllOrdersStatus(Integer orderId,Integer status);
+    R qurryAllOrdersStatus(Integer orderId, Integer status, String order_id);
 
     /**
      * @param rider_id
