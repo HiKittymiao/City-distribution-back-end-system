@@ -65,7 +65,7 @@ public class RiderController {
      * @param id
      * @return org.example.common.R
      * @author 聪懿
-     * @date 2022/8/10 17:09
+     * @date 2022/8/28 17:09
      * @description TODO
      **/
     @ApiOperation(value = "骑手通过id集合查询可抢单的详细内容")
@@ -163,7 +163,7 @@ public class RiderController {
     }
 
     @ApiOperation(value = "全部订单状态查询")
-    @GetMapping("/Goods/qurryStatus/{rider_id}")
+    @GetMapping("/Goods/qurryStatus")
     public R qurryAllOrdersStatus(@RequestParam("rider_id") Integer rider_id,
                                   @RequestParam(required = false, value = "status") Integer status,
                                   @RequestParam(required = false, value = "order_id") String order_id) {
