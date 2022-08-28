@@ -10,6 +10,7 @@ import org.example.service.ICustomAddressService;
 import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
+import org.example.utlis.OrderIidUtil;
 import org.example.utlis.RedisBeanMapUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import javax.annotation.Resource;
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -77,8 +75,8 @@ public class test {
     }
     @Test
     public void fdsaf(){
-        List<Orders> killOrderDetail = iOrdersService.getKillOrderDetail(iOrdersService.getKillOrder());
-        killOrderDetail.stream().forEach(System.out::println);
+        //List<Orders> killOrderDetail = iOrdersService.getKillOrderDetail(iOrdersService.getKillOrder());
+        //killOrderDetail.stream().forEach(System.out::println);
     }
 
     @Test
@@ -239,6 +237,8 @@ public class test {
     private MQSender mqSender;
     @Resource
     private RedisBeanMapUtil redisBeanMapUtil;
+    @Autowired
+    private OrderIidUtil abc;
 
     @Test
     public void mq(){
@@ -262,6 +262,10 @@ public class test {
         orders.setCreateTime(LocalDateTime.parse(map.get("payDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
         orders.setCreateTime(LocalDateTime.parse(map.get("riderAcceptDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
         System.out.println(orders);
+    }
+    @Test
+    void fdsa(){
+        //System.out.println(iOrdersService.qurryAllOrdersStatus(123, 2, order_id));
     }
 
 }
