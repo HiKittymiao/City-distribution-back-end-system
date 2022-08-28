@@ -190,5 +190,12 @@ public class RiderController {
         return iOrdersService.deliveriedGoods(rider_id, order_id, x, y);
     }
 
+    @ApiOperation(value = "骑手端查询今日订单")
+    @GetMapping("/getTodayNumber")
+    public R getTodayOrdersNumber(@RequestParam("rider_id") String rider_id){
+        return         iOrdersService.getTodayOrdersNumber(rider_id);
+
+    }
+
 
 }

@@ -195,7 +195,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public Map getKillOrderDetail(String ids) {
-            Map entries = redisTemplate.opsForHash().entries("order:" + ids);
+        Map entries = redisTemplate.opsForHash().entries("order:" + ids);
         return entries;
     }
 
@@ -204,7 +204,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Set kill_order = redisTemplate.opsForSet().members("kill_order");
         ArrayList<Orders> orders = new ArrayList<>();
         kill_order.forEach((i) -> {
-            orders.add((Orders)BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:" + i),new Orders(),false));
+            orders.add((Orders) BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:" + i), new Orders(), false));
         });
         return orders;
     }
@@ -273,13 +273,18 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
                 order.setStatue(8);
                 updateById(order);
                 redisTemplate.delete("no_pay:" + orderId);
-                updateById(order);
                 return R.success("订单取消成功");
             } else if (statue == 2) {
                 order.setStatue(8);
                 updateById(order);
+                redisTemplate.opsForHash().increment("rider:" + orderId, "cancel", 1);
                 redisTemplate.delete("no_pay:" + orderId);
+                return R.success("订单取消成功");
+            } else if (statue == 3) {
+                order.setStatue(8);
                 updateById(order);
+                redisTemplate.opsForHash().increment("rider:" + orderId, "cancel", 1);
+                redisTemplate.delete("no_pay:" + orderId);
                 return R.success("订单取消成功");
             } else {
                 return R.success("订单正在派送，禁止取消");
@@ -362,12 +367,16 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         LocalDateTime dateTime = LocalDateTime.now();
         redisTemplate.opsForHash().put("order:" + order_id, "riderCompleteDate", dateTime);
         redisTemplate.opsForHash().put("rider:" + rider_id, order_id.toString(), 5);
+        redisTemplate.opsForHash().increment("rider:" + rider_id, "sum", 1);
+        Double o = (Double) redisTemplate.opsForHash().get("order:" + order_id, "distance");
+        redisTemplate.opsForHash().increment("rider:" + rider_id, "distance", o);
+
         return R.success("物品已送达");
     }
 
     @Override
     public R qurryAllOrdersStatus(Integer riderId, Integer status, String order_id) {
-        if(!order_id.isEmpty()){
+        if (!order_id.isEmpty()) {
             Map map = redisTemplate.opsForHash().entries("order:" + order_id);
             if (!map.isEmpty()) {
                 Orders orders = BeanUtil.fillBeanWithMap(map, new Orders(), false);
@@ -429,7 +438,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         }
         Orders o = (Orders) redisTemplate.opsForValue().get("no_pay:" + orderId);
         if (o != null) {
-            if (orderId.longValue()==o.getId().longValue() && o.getCustomerId() == customId) {
+            if (orderId.longValue() == o.getId().longValue() && o.getCustomerId() == customId) {
                 return R.success("查询成功", o);
             }
             return R.success("非法操作订单或顾客id不存在");
@@ -437,7 +446,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Map map = redisTemplate.opsForHash().entries("order:" + orderId);
         if (!map.isEmpty()) {
             Orders orders = BeanUtil.fillBeanWithMap(map, new Orders(), false);
-            if (orders.getId().longValue()==orderId.longValue() && orders.getCustomerId() == customId) {
+            if (orders.getId().longValue() == orderId.longValue() && orders.getCustomerId() == customId) {
                 return R.success("成功", orders);
             }
             return R.success("非法操作订单或顾客id不存在");
@@ -455,7 +464,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Orders orders = new Orders();
         HashOperations ops = redisTemplate.opsForHash();
         Map entries = ops.entries("order:" + orderConfirm.getOrderId());
-        orders = BeanUtil.fillBeanWithMap(entries,new Orders(),false);
+        orders = BeanUtil.fillBeanWithMap(entries, new Orders(), false);
         //entries.forEach((k,v)-> System.out.println(k+"     "+v));
         if (!entries.isEmpty()) {
             orders = (Orders) BeanUtil.fillBeanWithMap(entries, new Orders(), false);
@@ -477,5 +486,15 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             return R.success("收货成功订单完成");
         }
         return R.error("数据库未查询到该订单");
+    }
+
+    @Override
+    public R getTodayOrdersNumber(String rider_id) {
+        HashOperations ops = redisTemplate.opsForHash();
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("sum", ops.get("rider:" + rider_id, "sum"));
+        map.put("distance",  ops.get("rider:" + rider_id, "distance"));
+        map.put("cancel",  ops.get("rider:" + rider_id, "cancel"));
+        return R.success("查询成功",map);
     }
 }
