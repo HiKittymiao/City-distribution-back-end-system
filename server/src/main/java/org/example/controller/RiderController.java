@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -194,6 +196,42 @@ public class RiderController {
     @GetMapping("/getTodayNumber")
     public R getTodayOrdersNumber(@RequestParam("rider_id") String rider_id){
         return         iOrdersService.getTodayOrdersNumber(rider_id);
+
+    }
+
+    @ApiOperation(value = "骑手端查询月订单")
+    @GetMapping("/getYueOrdersNumber")
+    public R getYueOrdersNumber(@RequestParam("rider_id") String rider_id){
+        return         iOrdersService.getYueOrdersNumber(rider_id);
+
+    }
+
+
+    public static void main(String[] args) {
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String format1 = format.format(date);
+        System.out.println(format1);
+        String[] split = format1.split("-");
+        Integer now = Integer.valueOf(split[2]);
+        split[2] = "01";
+        String dateChu = split[0]+'-'+split[1]+'-'+split[2];
+        String dateMo = "";
+        if ( 0<now && now <10){
+            if (now == 1){
+                now +=1;
+            }
+            now =now-1;
+            split[2] = '0'+String.valueOf(now);
+            dateMo = split[0]+'-'+split[1]+'-'+split[2];
+        }else{
+            now =now-1;
+            split[2] = String.valueOf(now);
+            dateMo = split[0]+'-'+split[1]+'-'+split[2];
+        }
+        System.out.println(dateChu);
+        System.out.println(dateMo);
 
     }
 

@@ -170,4 +170,6 @@ public interface IOrdersService extends IService<Orders> {
      * @description TODO
      **/
     R getTodayOrdersNumber(String rider_id);
+
+    R getYueOrdersNumber(String rider_id);
 }

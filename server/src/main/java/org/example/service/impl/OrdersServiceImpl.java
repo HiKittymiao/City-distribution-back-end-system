@@ -9,6 +9,7 @@ import org.example.common.R;
 import org.example.common.RespPageBean;
 import org.example.dto.OrderConfirm;
 import org.example.dto.OrderDetial;
+import org.example.dto.OrderYueDto;
 import org.example.mapper.OrdersMapper;
 import org.example.pojo.Custom;
 import org.example.pojo.Orders;
@@ -55,6 +56,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Autowired
     private IOrdersService ordersService;
+
+    @Autowired
+    private OrdersMapper ordersMapper;
 
 
     @Override
@@ -496,5 +500,59 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         map.put("distance",  ops.get("rider:" + rider_id, "distance"));
         map.put("cancel",  ops.get("rider:" + rider_id, "cancel"));
         return R.success("查询成功",map);
+    }
+
+    @Override
+    public R getYueOrdersNumber(String rider_id) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String format1 = format.format(date);
+        System.out.println(format1);
+        String[] split = format1.split("-");
+        Integer now = Integer.valueOf(split[2]);
+        split[2] = "01";
+        String dateChu = split[0]+'-'+split[1]+'-'+split[2];
+        String dateMo = "";
+        if ( 0<now && now <10){
+            if (now == 1){
+                now +=1;
+            }
+            now =now-1;
+            split[2] = '0'+String.valueOf(now);
+            dateMo = split[0]+'-'+split[1]+'-'+split[2];
+        }else{
+            now =now-1;
+            split[2] = String.valueOf(now);
+            dateMo = split[0]+'-'+split[1]+'-'+split[2];
+        }
+        System.out.println(dateChu);
+        System.out.println(dateMo);
+        OrderYueDto orderYueDto = new OrderYueDto();
+        List<Orders>  orders =   ordersMapper.getYueOrdersNumber(rider_id,dateChu,dateMo);
+        if (orders!=null){
+            int tuiCount = 0;
+            int wanchengCount = 0;
+            double sumMoney = 0.0;
+            for (Orders o : orders){
+                if (o.getStatue() == 5 || o.getStatue() ==6 ){
+                    wanchengCount++;
+                    sumMoney += o.getPrice();
+                }
+
+                if (o.getStatue() == 8){
+                    tuiCount++;
+                }
+
+            }
+            orderYueDto.setRefundOrder(tuiCount);
+            orderYueDto.setCompleteOrder(wanchengCount);
+            orderYueDto.setMoneySum(sumMoney);
+        }else {
+            return R.error("未查询到数据");
+        }
+
+
+
+        return R.success("查询成功",orderYueDto);
     }
 }

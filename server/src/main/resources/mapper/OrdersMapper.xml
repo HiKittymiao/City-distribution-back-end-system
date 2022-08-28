@@ -8,14 +8,14 @@
         <result column="customer_id" property="customerId" />
         <result column="address_id" property="addressId" />
         <result column="reder_id" property="rederId" />
-        <result column="order_content" property="orderContent" />
+        <result column="order_content" property="goodsDescribe" />
         <result column="s_longitude" property="sLongitude" />
         <result column="s_latitude" property="sLatitude" />
         <result column="r_longitude" property="rLongitude" />
         <result column="r_latitude" property="rLatitude" />
         <result column="price" property="price" />
         <result column="distance" property="distance" />
-        <result column="status" property="status" />
+        <result column="status" property="statue" />
         <result column="pay_date" property="payDate" />
         <result column="rider_accept_date" property="riderAcceptDate" />
         <result column="rider_get_date" property="riderGetDate" />
@@ -33,5 +33,10 @@
     <sql id="Base_Column_List">
         id, customer_id, address_id, reder_id, order_content, s_longitude, s_latitude, r_longitude, r_latitude, price, distance, status, pay_date, rider_accept_date, rider_get_date, rider_send_date, rider_complete_date, create_time, update_time, user_evaluate, user_score, order_type, goods_weight
     </sql>
+
+    <select id="getYueOrdersNumber" resultMap="BaseResultMap" >
+        select * from web_orders WHERE reder_id = #{rid} and  create_time BETWEEN  #{dateChu} and #{dateMo}
+    </select>
+
 
 </mapper>
