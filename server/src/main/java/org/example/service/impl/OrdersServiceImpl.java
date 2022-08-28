@@ -194,12 +194,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     @Override
-    public List<Orders> getKillOrderDetail(Set ids) {
-        ArrayList<Orders> orders = new ArrayList<>();
-        ids.forEach((i) -> {
-            orders.add((Orders) redisTemplate.opsForValue().get("no_pay:" + i));
-        });
-        return orders;
+    public Map getKillOrderDetail(String ids) {
+            Map entries = redisTemplate.opsForHash().entries("order:" + ids);
+        return entries;
     }
 
     @Override

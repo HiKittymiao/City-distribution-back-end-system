@@ -62,16 +62,16 @@ public class RiderController {
 
 
     /**
-     * @param ids
+     * @param id
      * @return org.example.common.R
      * @author 聪懿
      * @date 2022/8/10 17:09
      * @description TODO
      **/
     @ApiOperation(value = "骑手通过id集合查询可抢单的详细内容")
-    @PostMapping("/getKillOrder")
-    public R getKillOrderDetail(@RequestBody Set<Long> ids) {
-        return R.success("", iOrdersService.getKillOrderDetail(ids));
+    @GetMapping("/getOneOrder")
+    public R getKillOrderDetail(@RequestParam("id") String id) {
+        return R.success("", iOrdersService.getKillOrderDetail(id));
     }
 
     /**

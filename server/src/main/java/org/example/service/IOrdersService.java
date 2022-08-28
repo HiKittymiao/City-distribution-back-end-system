@@ -8,6 +8,7 @@ import org.example.pojo.Orders;
 import org.example.vo.PriceAndDistance;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,7 +66,7 @@ public interface IOrdersService extends IService<Orders> {
      * @date 2022/8/10 18:59
      * @description 根据订单号返回可抢订单内容
      **/
-    List<Orders> getKillOrderDetail(Set id);
+    Map getKillOrderDetail(String id);
     /**
      * @param
      * @return java.util.List<org.example.pojo.Orders>
