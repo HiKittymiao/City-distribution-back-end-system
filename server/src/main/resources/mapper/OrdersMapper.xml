@@ -11,8 +11,14 @@
         <result column="order_content" property="goodsDescribe" />
         <result column="s_longitude" property="sLongitude" />
         <result column="s_latitude" property="sLatitude" />
+        <result column="s_name" property="senderName" />
+        <result column="s_phone" property="senderPhone" />
+        <result column="sender_address" property="senderAddress" />
         <result column="r_longitude" property="rLongitude" />
         <result column="r_latitude" property="rLatitude" />
+        <result column="r_name" property="addresseeName" />
+        <result column="r_phone" property="addresseePhone" />
+        <result column="addressee_address" property="addresseeAddress" />
         <result column="price" property="price" />
         <result column="distance" property="distance" />
         <result column="status" property="statue" />
@@ -23,6 +29,7 @@
         <result column="rider_complete_date" property="riderCompleteDate" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
+        <result column="estimated_time" property="estimatedTime" />
         <result column="user_evaluate" property="userEvaluate" />
         <result column="user_score" property="userScore" />
         <result column="order_type" property="orderType" />

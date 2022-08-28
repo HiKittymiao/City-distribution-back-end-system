@@ -477,7 +477,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             orders.setUserScore(orderConfirm.getUserScore());
             orders.setStatue(6);
             updateById(orders);
-            redisTemplate.delete("order:" + orderConfirm.getOrderId());
+            //redisTemplate.delete("order:" + orderConfirm.getOrderId());
             return R.success("收货成功订单完成");
         }
         Orders id = getById(orderConfirm.getOrderId());
