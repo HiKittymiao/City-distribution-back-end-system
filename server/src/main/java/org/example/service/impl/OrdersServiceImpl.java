@@ -481,6 +481,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             ops.put(order+orderConfirm.getOrderId(),"userEvaluate",orderConfirm.getUserEvaluate());
             ops.put(order+orderConfirm.getOrderId(),"userScore",orderConfirm.getUserScore());
             ops.put(order+orderConfirm.getOrderId(),"statue",6);
+            ops.put("rider:"+orders.getRederId(),orders.getId().toString(),6);
 
             //redisTemplate.delete("order:" + orderConfirm.getOrderId());
             return R.success("收货成功订单完成");
