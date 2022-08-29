@@ -183,7 +183,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
             //redisTemplate.opsForHash().putAll("order:"+orderId,util.beanToMap(o));
             //订单内容redis设置过期时间2天
-            redisTemplate.opsForValue().set("orders:" + orderId, null, 2, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("orders:" + orderId, null, 60, TimeUnit.SECONDS);
 
             //要抢单的订单进入Redis的集合
             redisTemplate.opsForSet().add("kill_order", o.getId());
@@ -465,18 +465,23 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public R confirmGoods(OrderConfirm orderConfirm) {
+        String order="order:";
         Orders orders = new Orders();
         HashOperations ops = redisTemplate.opsForHash();
-        Map entries = ops.entries("order:" + orderConfirm.getOrderId());
+        Map entries = ops.entries(order + orderConfirm.getOrderId());
         orders = BeanUtil.fillBeanWithMap(entries, new Orders(), false);
         //entries.forEach((k,v)-> System.out.println(k+"     "+v));
         if (!entries.isEmpty()) {
-            orders = (Orders) BeanUtil.fillBeanWithMap(entries, new Orders(), false);
-            //System.out.println(orders);
-            orders.setUserEvaluate(orderConfirm.getUserEvaluate());
-            orders.setUserScore(orderConfirm.getUserScore());
-            orders.setStatue(6);
-            updateById(orders);
+            //orders = (Orders) BeanUtil.fillBeanWithMap(entries, new Orders(), false);
+            //orders.setUserEvaluate(orderConfirm.getUserEvaluate());
+            //orders.setUserScore(orderConfirm.getUserScore());
+            //orders.setStatue(6);
+            //updateById(orders);
+
+            ops.put(order+orderConfirm.getOrderId(),"userEvaluate",orderConfirm.getUserEvaluate());
+            ops.put(order+orderConfirm.getOrderId(),"userScore",orderConfirm.getUserScore());
+            ops.put(order+orderConfirm.getOrderId(),"statue",6);
+
             //redisTemplate.delete("order:" + orderConfirm.getOrderId());
             return R.success("收货成功订单完成");
         }

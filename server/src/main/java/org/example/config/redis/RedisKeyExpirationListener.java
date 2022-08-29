@@ -48,39 +48,14 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
         String expiraKey = message.toString();
         //截取:之前字符串
         String sign = expiraKey.substring(0, expiraKey.indexOf(":"));
-        String data =expiraKey.substring(expiraKey.indexOf(":"));
+        String data =expiraKey.substring(expiraKey.indexOf(":")+1);
+
         switch (sign){
-            case  "orders:":{
+            case  "orders":{
                 System.out.println("该key：expiraKey：" + expiraKey + "失效啦~");
                 Map map = redisTemplate.opsForHash().entries(order + data);
                 Orders orders = BeanUtil.fillBeanWithMap (map,new Orders(), true);
-                if (map.get("payDate")!=null) {
-                    orders.setCreateTime(LocalDateTime.parse(map.get("payDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
-                }
-                if(map.get("riderAcceptDate")!=null){
-                    orders.setRiderAcceptDate(LocalDateTime.parse(map.get("riderAcceptDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
-                }
-                if (map.get("riderGetDate")!=null){
-                    orders.setRiderGetDate(LocalDateTime.parse(map.get("riderGetDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
-                }
-                if(map.get("riderGetDate")!=null){
-                    orders.setRiderGetDate(LocalDateTime.parse(map.get("riderGetDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
-                }
-                if(map.get("riderCompleteDate")!=null){
-                    orders.setRiderCompleteDate(LocalDateTime.parse(map.get("riderCompleteDate").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
-
-                }
-                if(map.get("createTime")!=null){
-                    orders.setCreateTime(LocalDateTime.parse(map.get("createTime").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                }
-                if(map.get("updateTime")!=null){
-                    orders.setUpdateTime(LocalDateTime.parse(map.get("updateTime").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-
-                }
-                if(map.get("estimatedTime")!=null){
-                    orders.setEstimatedTime(LocalDateTime.parse(map.get("estimatedTime").toString().replace("T"," ").replace("\"",""), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                }
-                iOrdersService.save(orders);
+                iOrdersService.updateById(orders);
                 redisTemplate.delete(order+data);
             }
         }
