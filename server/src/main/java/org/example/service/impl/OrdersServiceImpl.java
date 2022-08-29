@@ -183,7 +183,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
             //redisTemplate.opsForHash().putAll("order:"+orderId,util.beanToMap(o));
             //订单内容redis设置过期时间2天
-            redisTemplate.opsForValue().set("orders:" + orderId, null, 60, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set("orders:" + orderId, null, 3, TimeUnit.DAYS);
 
             //要抢单的订单进入Redis的集合
             redisTemplate.opsForSet().add("kill_order", o.getId());
