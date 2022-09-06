@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,13 +11,16 @@ import org.example.common.RespPageBean;
 import org.example.dto.OrderConfirm;
 import org.example.dto.OrderDetial;
 import org.example.dto.OrderYueDto;
+import org.example.enums.Enum_redis;
 import org.example.mapper.OrdersMapper;
 import org.example.pojo.Custom;
 import org.example.pojo.Orders;
+import org.example.rabbitmq.MQSender;
 import org.example.service.ICustomService;
 import org.example.service.IOrdersService;
 import org.example.service.IRiderService;
 import org.example.utlis.DistanceUtil;
+import org.example.utlis.JsonUtil;
 import org.example.utlis.OrderIidUtil;
 import org.example.vo.PriceAndDistance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +64,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Autowired
     private OrdersMapper ordersMapper;
 
+    @Autowired
+    private MQSender mqSender;
+
+    private final static String reids_oder="order:";
+
 
     @Override
     public String newOrder(OrderDetial o, PriceAndDistance pd) {
@@ -93,7 +102,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         order.setGoodsType(o.getGoodsType());
         order.setEstimatedTime(dateTime.plusMinutes(30));
         redisTemplate.opsForValue().set("no_pay:" + id, order, 30, TimeUnit.MINUTES);
-        save(order);
+        //save(order);
+        mqSender.sendOrderSave(JsonUtil.object2JsonStr(order));
         return id;
     }
 
@@ -168,20 +178,21 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             LocalDateTime dateTime = LocalDateTime.now();
             o.setPayDate(dateTime);
             //更新数据库
-            updateById(o);
+            //updateById(o);
+            mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(o));
             //保存订单内容到Redis的hash
             //HashOperations<String,Object,Object> hashOperations = redisTemplate.opsForHash();
             //try {
-            //    util.parseMap("order:"+orderId,hashOperations,o);
+            //    util.parseMap(reids_oder+orderId,hashOperations,o);
             //} catch (Exception e) {
             //    e.printStackTrace();
             //}
 
             Map<String, Object> map = BeanUtil.beanToMap(o);
-            redisTemplate.opsForHash().putAll("order:" + orderId, map);
+            redisTemplate.opsForHash().putAll(Enum_redis.order + orderId.toString(), map);
 
 
-            //redisTemplate.opsForHash().putAll("order:"+orderId,util.beanToMap(o));
+            //redisTemplate.opsForHash().putAll(reids_oder+orderId,util.beanToMap(o));
             //订单内容redis设置过期时间2天
             redisTemplate.opsForValue().set("orders:" + orderId, null, 3, TimeUnit.DAYS);
 
@@ -199,7 +210,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public Map getKillOrderDetail(String ids) {
-        Map entries = redisTemplate.opsForHash().entries("order:" + ids);
+        Map entries = redisTemplate.opsForHash().entries(Enum_redis.order + ids);
         return entries;
     }
 
@@ -208,7 +219,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Set kill_order = redisTemplate.opsForSet().members("kill_order");
         ArrayList<Orders> orders = new ArrayList<>();
         kill_order.forEach((i) -> {
-            orders.add((Orders) BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:" + i), new Orders(), false));
+            orders.add((Orders) BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries(reids_oder + i), new Orders(), false));
         });
         return orders;
     }
@@ -219,7 +230,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         if (!iRiderService.isRider(1)) {
             return R.error("骑手不存在");
         }
-        Integer o = (Integer) ops.get("order:" + orderId, "rederId");
+        Integer o = (Integer) ops.get(reids_oder + orderId, "rederId");
         if (o != null) {
             if (o == rideId) {
                 return R.success("重复抢单");
@@ -229,13 +240,13 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
-                operations.watch("order:" + orderId);
+                operations.watch(reids_oder + orderId);
                 operations.multi();
                 //更新redis订单表
                 LocalDateTime now = LocalDateTime.now();
-                operations.opsForHash().put("order:" + orderId, "rederId", rideId);
-                operations.opsForHash().put("order:" + orderId, "statue", 2); //ops.increment("order:" + id,"statue",1d);
-                operations.opsForHash().put("order:" + orderId, "riderAcceptDate", now);
+                operations.opsForHash().put(reids_oder + orderId, "rederId", rideId);
+                operations.opsForHash().put(reids_oder + orderId, "statue", 2); //ops.increment(reids_oder + id,"statue",1d);
+                operations.opsForHash().put(reids_oder + orderId, "riderAcceptDate", now);
                 return operations.exec();
             }
         });
@@ -245,6 +256,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         redisTemplate.delete("no_pay:" + orderId);
         //将订单添加到骑手表
         ops.put("rider:" + rideId, orderId.toString(), 2);
+        //更新数据库
+        Map entries1 = redisTemplate.opsForHash().entries(reids_oder+orderId);
+        Orders orders1 = BeanUtil.fillBeanWithMap(entries1, new Orders(), false);
+        mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(orders1));
         return R.success("抢单成功");
     }
 
@@ -258,11 +273,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             return R.error("账号被冻结");
         }
         Orders o = (Orders) redisTemplate.opsForValue().get("no_pay:" + orderId);
-        Map entries = redisTemplate.opsForHash().entries("order:" + orderId);
+        Map entries = redisTemplate.opsForHash().entries(reids_oder + orderId);
         if (o != null) {
             if (o.getStatue() == 0 && orderId.equals(o.getId().toString())) {
                 o.setStatue(8);
-                updateById(o);
+                mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(o));
                 redisTemplate.delete("no_pay:" + orderId);
                 return R.success("订单取消成功");
             }
@@ -275,18 +290,18 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             Integer statue = order.getStatue();
             if (statue == 1) {
                 order.setStatue(8);
-                updateById(order);
+
                 redisTemplate.delete("no_pay:" + orderId);
                 return R.success("订单取消成功");
             } else if (statue == 2) {
                 order.setStatue(8);
-                updateById(order);
+                mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(order));
                 redisTemplate.opsForHash().increment("rider:" + orderId, "cancel", 1);
                 redisTemplate.delete("no_pay:" + orderId);
                 return R.success("订单取消成功");
             } else if (statue == 3) {
                 order.setStatue(8);
-                updateById(order);
+                mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(order));
                 redisTemplate.opsForHash().increment("rider:" + orderId, "cancel", 1);
                 redisTemplate.delete("no_pay:" + orderId);
                 return R.success("订单取消成功");
@@ -303,10 +318,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     public R arrivePlace(Integer rider_id, String id, Double x, Double y) {
 
 
-        Integer rederId = (Integer) redisTemplate.opsForHash().get("order:" + id, "rederId");
-        double ox = (double) redisTemplate.opsForHash().get("order:" + id, "sLongitude");
-        double oy = (double) redisTemplate.opsForHash().get("order:" + id, "sLatitude");
-        Object o = redisTemplate.opsForHash().get("order:" + id, "statue");
+        Integer rederId = (Integer) redisTemplate.opsForHash().get(reids_oder + id, "rederId");
+        double ox = (double) redisTemplate.opsForHash().get(reids_oder + id, "sLongitude");
+        double oy = (double) redisTemplate.opsForHash().get(reids_oder + id, "sLatitude");
+        Object o = redisTemplate.opsForHash().get(reids_oder + id, "statue");
 
         //不是本骑手
         if (rederId != rider_id) {
@@ -324,33 +339,44 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         if (integer != 2) {
             return R.success("禁止重复操作");
         }
-        redisTemplate.opsForHash().put("order:" + id, "statue", 3);
+        redisTemplate.opsForHash().put(reids_oder + id, "statue", 3);
         LocalDateTime dateTime = LocalDateTime.now();
-        redisTemplate.opsForHash().put("order:" + id, "riderGetDate", dateTime);
+        redisTemplate.opsForHash().put(reids_oder + id, "riderGetDate", dateTime);
         redisTemplate.opsForHash().put("rider:" + rider_id, id.toString(), 3);
+
+        //更新数据库
+        Map entries1 = redisTemplate.opsForHash().entries(reids_oder+id);
+        Orders orders1 = BeanUtil.fillBeanWithMap(entries1, new Orders(), false);
+        mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(orders1));
         return R.success("骑手到达目指定的地等候顾客到达");
     }
 
     @Override
     public R confirmGoods(Integer rider_id, String order_id) {
-        Object o = redisTemplate.opsForHash().get("order:" + order_id, "statue");
+        Object o = redisTemplate.opsForHash().get(reids_oder + order_id, "statue");
         Integer integer = Integer.valueOf(o.toString());
         if (integer != 3) {
             return R.success("禁止重复操作");
         }
-        redisTemplate.opsForHash().put("order:" + order_id, "statue", 4);
+        redisTemplate.opsForHash().put(reids_oder + order_id, "statue", 4);
         LocalDateTime dateTime = LocalDateTime.now();
-        redisTemplate.opsForHash().put("order:" + order_id, "riderSendDate", dateTime);
+        redisTemplate.opsForHash().put(reids_oder + order_id, "riderSendDate", dateTime);
         redisTemplate.opsForHash().put("rider:" + rider_id, order_id.toString(), 4);
+
+        //更新数据库
+        Map entries1 = redisTemplate.opsForHash().entries(reids_oder+order_id);
+        Orders orders1 = BeanUtil.fillBeanWithMap(entries1, new Orders(), false);
+        mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(orders1));
+
         return R.success("成功取货");
     }
 
     @Override
     public R deliveriedGoods(Integer rider_id, String order_id, Double x, Double y) {
-        Integer rederId = (Integer) redisTemplate.opsForHash().get("order:" + order_id, "rederId");
-        //double ox = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLongitude");
-        //double oy = (double) redisTemplate.opsForHash().get("order:" + order_id, "rLatitude");
-        Integer integer = (Integer) redisTemplate.opsForHash().get("order:" + order_id, "statue");
+        Integer rederId = (Integer) redisTemplate.opsForHash().get(reids_oder + order_id, "rederId");
+        //double ox = (double) redisTemplate.opsForHash().get(reids_oder + order_id, "rLongitude");
+        //double oy = (double) redisTemplate.opsForHash().get(reids_oder + order_id, "rLatitude");
+        Integer integer = (Integer) redisTemplate.opsForHash().get(reids_oder + order_id, "statue");
         //不是本骑手
         if (rederId != rider_id) {
             return R.error("非法操作");
@@ -367,21 +393,25 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         if (integer != 4) {
             return R.success("禁止重复操作");
         }
-        redisTemplate.opsForHash().put("order:" + order_id, "statue", 5);
+        redisTemplate.opsForHash().put(reids_oder + order_id, "statue", 5);
         LocalDateTime dateTime = LocalDateTime.now();
-        redisTemplate.opsForHash().put("order:" + order_id, "riderCompleteDate", dateTime);
+        redisTemplate.opsForHash().put(reids_oder + order_id, "riderCompleteDate", dateTime);
         redisTemplate.opsForHash().put("rider:" + rider_id, order_id.toString(), 5);
         redisTemplate.opsForHash().increment("rider:" + rider_id, "sum", 1);
-        Double o = (Double) redisTemplate.opsForHash().get("order:" + order_id, "distance");
+        Double o = (Double) redisTemplate.opsForHash().get(reids_oder + order_id, "distance");
         redisTemplate.opsForHash().increment("rider:" + rider_id, "distance", o);
 
+        //更新数据库
+        Map entries1 = redisTemplate.opsForHash().entries(reids_oder+order_id);
+        Orders orders1 = BeanUtil.fillBeanWithMap(entries1, new Orders(), false);
+        mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(orders1));
         return R.success("物品已送达");
     }
 
     @Override
     public R qurryAllOrdersStatus(Integer riderId, Integer status, String order_id) {
         if (!order_id.isEmpty()) {
-            Map map = redisTemplate.opsForHash().entries("order:" + order_id);
+            Map map = redisTemplate.opsForHash().entries(reids_oder + order_id);
             if (!map.isEmpty()) {
                 Orders orders = BeanUtil.fillBeanWithMap(map, new Orders(), false);
                 if (orders.getId().toString().equals(order_id) && orders.getRederId() == riderId) {
@@ -397,7 +427,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             Iterator<Long> it = keys.iterator();
             while (it.hasNext()) {
                 //对myobject进行操作
-                orders.add(BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:" + it.next()), new Orders(), false));
+                orders.add(BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries(reids_oder + it.next()), new Orders(), false));
             }
             return R.success("返回一天内所以该骑手所以的订单状态", orders);
         }
@@ -406,7 +436,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         entries.entrySet().removeIf(m -> m.getValue() != status);
         List<String> collect = entries.keySet().stream().collect(Collectors.toList());
         collect.forEach(k -> {
-            orders.add(BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries("order:" + k), new Orders(), false));
+            orders.add(BeanUtil.fillBeanWithMap(redisTemplate.opsForHash().entries(reids_oder + k), new Orders(), false));
         });
         //System.out.println(orders);
         //entries.forEach((k, v) -> System.out.println(k + "-" + v));
@@ -447,7 +477,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             }
             return R.success("非法操作订单或顾客id不存在");
         }
-        Map map = redisTemplate.opsForHash().entries("order:" + orderId);
+        Map map = redisTemplate.opsForHash().entries(reids_oder + orderId);
         if (!map.isEmpty()) {
             Orders orders = BeanUtil.fillBeanWithMap(map, new Orders(), false);
             if (orders.getId().longValue() == orderId.longValue() && orders.getCustomerId() == customId) {
@@ -465,10 +495,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public R confirmGoods(OrderConfirm orderConfirm) {
-        String order="order:";
         Orders orders = new Orders();
         HashOperations ops = redisTemplate.opsForHash();
-        Map entries = ops.entries(order + orderConfirm.getOrderId());
+        Map entries = ops.entries(reids_oder + orderConfirm.getOrderId());
         orders = BeanUtil.fillBeanWithMap(entries, new Orders(), false);
         //entries.forEach((k,v)-> System.out.println(k+"     "+v));
         if (!entries.isEmpty()) {
@@ -478,12 +507,17 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             //orders.setStatue(6);
             //updateById(orders);
 
-            ops.put(order+orderConfirm.getOrderId(),"userEvaluate",orderConfirm.getUserEvaluate());
-            ops.put(order+orderConfirm.getOrderId(),"userScore",orderConfirm.getUserScore());
-            ops.put(order+orderConfirm.getOrderId(),"statue",6);
+            ops.put(reids_oder+orderConfirm.getOrderId(),"userEvaluate",orderConfirm.getUserEvaluate());
+            ops.put(reids_oder+orderConfirm.getOrderId(),"userScore",orderConfirm.getUserScore());
+            ops.put(reids_oder+orderConfirm.getOrderId(),"statue",6);
             ops.put("rider:"+orders.getRederId(),orders.getId().toString(),6);
 
-            //redisTemplate.delete("order:" + orderConfirm.getOrderId());
+            //更新数据库
+            Map entries1 = redisTemplate.opsForHash().entries(reids_oder+orderConfirm.getOrderId());
+            Orders orders1 = BeanUtil.fillBeanWithMap(entries1, new Orders(), false);
+            mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(orders1));
+
+            //redisTemplate.delete(reids_oder + orderConfirm.getOrderId());
             return R.success("收货成功订单完成");
         }
         Orders id = getById(orderConfirm.getOrderId());
@@ -531,8 +565,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             split[2] = String.valueOf(now);
             dateMo = split[0]+'-'+split[1]+'-'+split[2];
         }
-        System.out.println(dateChu);
-        System.out.println(dateMo);
+        //System.out.println(dateChu);
+        //System.out.println(dateMo);
         OrderYueDto orderYueDto = new OrderYueDto();
         List<Orders>  orders =   ordersMapper.getYueOrdersNumber(rider_id,dateChu,dateMo);
         if (orders!=null){

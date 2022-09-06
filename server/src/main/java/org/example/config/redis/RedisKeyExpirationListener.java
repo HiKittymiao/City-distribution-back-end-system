@@ -2,7 +2,9 @@ package org.example.config.redis;
 
 import cn.hutool.core.bean.BeanUtil;
 import org.example.pojo.Orders;
+import org.example.rabbitmq.MQSender;
 import org.example.service.IOrdersService;
+import org.example.utlis.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,7 +32,7 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     }
 
     @Autowired
-    private IOrdersService iOrdersService;
+    private MQSender mqSender;
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -55,7 +57,8 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
                 System.out.println("该key：expiraKey：" + expiraKey + "失效啦~");
                 Map map = redisTemplate.opsForHash().entries(order + data);
                 Orders orders = BeanUtil.fillBeanWithMap (map,new Orders(), true);
-                iOrdersService.updateById(orders);
+                //iOrdersService.updateById(orders);
+                mqSender.sendOrderUpdataById(JsonUtil.object2JsonStr(orders));
                 redisTemplate.delete(order+data);
             }
         }

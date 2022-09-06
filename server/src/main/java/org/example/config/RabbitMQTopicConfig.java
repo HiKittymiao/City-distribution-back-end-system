@@ -16,13 +16,18 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class RabbitMQTopicConfig {
-    private static final String QUEUE = "seckillQueue";
-    private static final String EXCHANGE = "seckillExchange";
+    private static final String QUEUE = "mysqlQueue";
+    //private static final String QUEUE2 = "mysqlSaveQueue";
+    private static final String EXCHANGE = "mysqlExchange";
 
     @Bean
     public Queue queue() {
         return new Queue(QUEUE);
     }
+    //@Bean
+    //public Queue queue2() {
+    //    return new Queue(QUEUE2);
+    //}
 
     @Bean
     public TopicExchange topicExchange() {
@@ -31,6 +36,6 @@ public class RabbitMQTopicConfig {
 
     @Bean
     public Binding binding() {
-        return BindingBuilder.bind(queue()).to(topicExchange()).with("seckill.#");
+        return BindingBuilder.bind(queue()).to(topicExchange()).with("mysql.#");
     }
 }

@@ -19,8 +19,11 @@ public class MQSender {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    public void sendSeckillMessage(String message) {
-        log.info("发送消息" + message);
-        rabbitTemplate.convertAndSend("seckillExchange", "seckill.message", message);
+    public void sendOrderUpdataById(String message) {
+        //log.info("发送消息" + message);
+        rabbitTemplate.convertAndSend("mysqlExchange", "mysql.messagze", message);
+    }
+    public void sendOrderSave(String message){
+        rabbitTemplate.convertAndSend("mysqlExchange","mysql.messagze",message);
     }
 }
