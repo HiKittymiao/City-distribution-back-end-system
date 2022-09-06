@@ -35,7 +35,7 @@ public class ExamineController {
         examine.setCreateTime(LocalDateTime.now());
         examine.setUpdateTime(LocalDateTime.now());
 
-        Examine phone = examineService.getOne(new QueryWrapper<Examine>().eq("phone", examine.getPhone()));
+        Examine phone = examineService.getOne(new QueryWrapper<Examine>().eq("phone", examine.getPhone()).ne("status",1));
         if (phone ==null){
             if (examineService.save(examine)){
                 return R.success("添加成功");
