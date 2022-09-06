@@ -1,6 +1,7 @@
 package org.example.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.ApiOperation;
 import org.example.common.R;
 import org.example.pojo.Examine;
@@ -33,10 +34,14 @@ public class ExamineController {
     public R addExamine(@RequestBody Examine examine){
         examine.setCreateTime(LocalDateTime.now());
         examine.setUpdateTime(LocalDateTime.now());
-        if (examineService.save(examine)){
-            return R.success("添加成功");
+
+        Examine phone = examineService.getOne(new QueryWrapper<Examine>().eq("phone", examine.getPhone()));
+        if (phone ==null){
+            if (examineService.save(examine)){
+                return R.success("添加成功");
+            }
         }
-        return R.error("添加失败");
+        return R.error("添加失败,请审核信息是否填写正确");
     }
 
 }
