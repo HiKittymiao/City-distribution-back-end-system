@@ -1,7 +1,6 @@
 package org.example.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,7 +10,6 @@ import org.example.common.RespPageBean;
 import org.example.dto.OrderConfirm;
 import org.example.dto.OrderDetial;
 import org.example.dto.OrderYueDto;
-import org.example.enums.Enum_redis;
 import org.example.mapper.OrdersMapper;
 import org.example.pojo.Custom;
 import org.example.pojo.Orders;
@@ -102,6 +100,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         order.setGoodsType(o.getGoodsType());
         order.setEstimatedTime(dateTime.plusMinutes(30));
         redisTemplate.opsForValue().set("no_pay:" + id, order, 30, TimeUnit.MINUTES);
+        //redisTemplate.opsForHash().putAll(order);
         //save(order);
         mqSender.sendOrderSave(JsonUtil.object2JsonStr(order));
         return id;
@@ -115,8 +114,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public String newId() {
-
-
         long count = 0;
         String Tickid = "";
         //订单类型
@@ -139,7 +136,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
                 count = (Long) stringRedisTemplate.opsForValue().increment("ID:" + Tickid);
                 // 定义一个lua脚本
                 String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-
                 // 创建对象
                 DefaultRedisScript<Long> redisScript = new DefaultRedisScript();
                 // 设置lua脚本
@@ -189,7 +185,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             //}
 
             Map<String, Object> map = BeanUtil.beanToMap(o);
-            redisTemplate.opsForHash().putAll(Enum_redis.order + orderId.toString(), map);
+            redisTemplate.opsForHash().putAll("order:" + orderId.toString(), map);
 
 
             //redisTemplate.opsForHash().putAll(reids_oder+orderId,util.beanToMap(o));
@@ -210,7 +206,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
     @Override
     public Map getKillOrderDetail(String ids) {
-        Map entries = redisTemplate.opsForHash().entries(Enum_redis.order + ids);
+        Map entries = redisTemplate.opsForHash().entries("order:" + ids);
         return entries;
     }
 

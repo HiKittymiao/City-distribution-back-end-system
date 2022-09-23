@@ -8,7 +8,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>server</artifactId>
 
     <properties>
@@ -23,7 +22,11 @@
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
 
 
@@ -74,13 +77,11 @@
             <artifactId>swagger-bootstrap-ui</artifactId>
             <version>1.9.6</version>
         </dependency>
-
         <!--spring security依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
         <!--Jwt依赖-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -88,13 +89,10 @@
             <version>0.9.0</version>
         </dependency>
         <!--websocket 依赖-->
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-
-
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-websocket</artifactId>-->
+<!--        </dependency>-->
         <!--hutool工具类引入-->
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -102,7 +100,6 @@
             <version>5.7.20</version>
         </dependency>
         <!--minio依赖-->
-
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
@@ -114,8 +111,6 @@
             <artifactId>kaptcha</artifactId>
             <version>0.0.9</version>
         </dependency>
-
-
         <!--redis 依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -126,11 +121,7 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
         </dependency>
-
-        <!--
-            redis 连接池依赖
-        -->
-
+        <!--redis 连接池依赖-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
@@ -158,4 +149,39 @@
             <version>3.5.1</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!--加上此代码即可-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/webapp</directory>
+                <targetPath>META-INF/resources</targetPath>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+
+
+
 </project>

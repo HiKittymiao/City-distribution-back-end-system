@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.AddressMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.example.pojo.Address">
+        <id column="id" property="id" />
+        <result column="customer_id" property="customerId" />
+        <result column="s_name" property="sName" />
+        <result column="s_phone" property="sPhone" />
+        <result column="s_address" property="sAddress" />
+        <result column="s_longitude" property="sLongitude" />
+        <result column="s_latitude" property="sLatitude" />
+        <result column="r_name" property="rName" />
+        <result column="r_phone" property="rPhone" />
+        <result column="r_address" property="rAddress" />
+        <result column="r_longitude" property="rLongitude" />
+        <result column="r_latitude" property="rLatitude" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, customer_id, s_name, s_phone, s_address, s_longitude, s_latitude, r_name, r_phone, r_address, r_longitude, r_latitude, del_flag
+    </sql>
+
+</mapper>

@@ -242,7 +242,7 @@ public class test {
 
     @Test
     public void mq(){
-        mqSender.sendSeckillMessage("520");
+        //mqSender.sendSeckillMessage("520");
     }
     @Test
     //map转对象成功
@@ -266,6 +266,7 @@ public class test {
     @Test
     void fdsa(){
         //System.out.println(iOrdersService.qurryAllOrdersStatus(123, 2, order_id));
+        //System.out.println(enumTest.redis_order);
     }
 
 }

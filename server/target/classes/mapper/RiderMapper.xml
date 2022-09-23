@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.RiderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.example.pojo.Rider">
+        <id column="id" property="id"/>
+        <result column="rider_name" property="riderName"/>
+        <result column="phone" property="phone"/>
+        <result column="rider_user_name" property="riderUserName"/>
+        <result column="rider_status" property="riderStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="rider_score" property="riderScore"/>
+        <result column="rider_avatar" property="riderAvatar"/>
+        <result column="take_orders_number" property="takeOrdersNumber"/>
+        <result column="get_money" property="getMoney"/>
+        <result column="wx_id" property="wxId"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="email" property="email"/>
+        <result column="age" property="age"/>
+        <result column="complaint_number" property="complaintNumber"/>
+        <result column="praise_number" property="praiseNumber"/>
+        <result column="password" property="password"/>
+        <result column="sex" property="sex"/>
+        <result column="enabled" property="enabled"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="persion_id" property="persionId"/>
+        <result column="already_money" property="alreadyMoney"/>
+        <result column="kilometre" property="kilometre"/>
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , rider_name, phone, rider_user_name, rider_status, create_time, update_time, rider_score, rider_avatar,
+        take_orders_number, get_money, wx_id, expire_time, email, age, complaint_number, praise_number, password,
+        sex, enabled, del_flag,persion_id
+    </sql>
+
+</mapper>

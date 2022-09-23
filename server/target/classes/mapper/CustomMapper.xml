@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.CustomMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.example.pojo.Custom">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="name" property="name"/>
+        <result column="user_face" property="userFace"/>
+        <result column="sex" property="sex"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="birthday" property="birthday"/>
+        <result column="money" property="money"/>
+        <result column="integral" property="integral"/>
+        <result column="wx_id" property="wxId"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="enabled" property="enabled"/>
+        <result column="password" property="password"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_name, name, user_face, sex, phone, email, birthday, money,
+        integral, wx_id, longitude, latitude, enabled, password, create_time,
+        update_time
+    </sql>
+
+    <!--    查询顾客表扣除费用-->
+    <update id="deductMoneny">
+    </update>
+
+    <!--    查询顾客表钱包-->
+<!--    <select id="getCustomMoney" result="">-->
+<!--        select money from web_custom where phone=#{}-->
+<!--    </select>-->
+</mapper>
